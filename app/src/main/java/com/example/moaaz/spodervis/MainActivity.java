@@ -2,8 +2,10 @@ package com.example.moaaz.spodervis;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
@@ -16,14 +18,13 @@ import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.util.Arrays;
 
-import static com.pubnub.api.enums.PNOperationType.PNHeartbeatOperation;
-
 
 public class MainActivity extends AppCompatActivity {
 
 
     PNConfiguration pnConfiguration;
     PubNub pubnub;
+ //   com.example.moaaz.spodervis.nlp nlp  = new nlp(this);
     boolean lightOn = false;
 
     @Override
@@ -35,6 +36,61 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void executeCommand(String response)
+    {
+      //  String response = nlp.value;
+        if (response.equals("light on")) {
+            TextView t = (TextView) findViewById(R.id.text);
+            t.setText("Switching light on!");
+            switchLight("light_on");
+        }
+        if (response.equals("light off")) {
+            TextView t = (TextView) findViewById(R.id.text);
+            t.setText("Switching light off!");
+            switchLight("light_off");
+        }
+        if (response.equals("start music")) {
+            TextView t = (TextView) findViewById(R.id.text);
+            t.setText("Switching light off!");
+            switchLight("music_on");
+        }
+        if (response.equals("stop music")) {
+            TextView t = (TextView) findViewById(R.id.text);
+            t.setText("Switching light off!");
+            switchLight("music_off");
+        }
+        if (response.equals("null"))
+        {
+            TextView t = (TextView) findViewById(R.id.text);
+            t.setText("I cannot catch that!");
+        }
+
+
+    }
+
+    public void sendCommand(View view) throws Exception
+    {
+        EditText commandField = (EditText) findViewById(R.id.commandField);
+        String command =  commandField.getText().toString();
+        nlp n = new nlp(this);
+        n.execute(command).get();
+        executeCommand(n.value);
+    }
+
+    public void switchLight(String option)
+    {
+        pubnub.publish()
+                .message(Arrays.asList(option))
+                .channel("commands")
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError to see if error happened
+                    }
+                });
+    }
+/*
     public void switchLight(View view)
     {
         if (!lightOn)
@@ -68,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
-
+*/
     public void configurePubNub()
     {
         pnConfiguration = new PNConfiguration();

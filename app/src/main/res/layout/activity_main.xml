@@ -13,9 +13,26 @@
 
 
     <Button
-        android:id="@+id/switchLightButton"
+        android:id="@+id/sendCommand"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Switch On"
-        android:onClick="switchLight"/>
+        android:text="sendCommand"
+        android:onClick="sendCommand"/>
+
+    <EditText
+        android:id="@+id/commandField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sendCommand"
+        android:textColor="#000000"/>
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/commandField"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:textSize="24sp"
+        />
 </RelativeLayout>
