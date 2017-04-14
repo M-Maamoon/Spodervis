@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:weightSum="1">
+
+
+    <ScrollView
+        android:id="@+id/chatScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_margin="8dp"
+        android:fillViewport="true"
+        >
+        <LinearLayout
+            android:id="@+id/messagesArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="bottom">
+
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:layout_marginRight="72dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingRight="16dp"
+                    android:paddingLeft="16dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:background="@drawable/spodervis_text_bubble"
+                    android:text="Hrey, how can I help you today?"/>
+
+            <TextView
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginLeft="72dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingRight="16dp"
+                android:paddingLeft="16dp"
+                android:textColor="#4169e1"
+                android:textSize="16sp"
+                android:background="@drawable/user_text_bubble"
+                android:text="u lok leik an fagit"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/messageTextLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:background="@drawable/rounded_corners">
+
+        <EditText
+            android:id="@+id/messageTextField"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="8dp"
+            android:layout_weight="0.9"
+            android:textSize="16sp"
+            android:background="@null"
+            android:hint="Write a command ..."
+            android:textColor="#000000"/>
+
+
+        <Button
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginRight="16dp"
+            android:padding="15dp"
+            android:background="@drawable/send_button_blue"
+            android:onClick="sendMessage"/>
+
+
+
+
+    </LinearLayout>
+
+</LinearLayout>
