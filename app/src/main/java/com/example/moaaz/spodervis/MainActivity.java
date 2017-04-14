@@ -1,5 +1,6 @@
 package com.example.moaaz.spodervis;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,6 +35,12 @@ public class MainActivity extends AppCompatActivity {
         configurePubNub();
 
 
+    }
+
+    public void startChatting(View view)
+    {
+        Intent intent = new Intent(MainActivity.this, ChattingActivity.class);
+        startActivity(intent);
     }
 
     public void executeCommand(String response)
