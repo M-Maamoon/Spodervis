@@ -65,6 +65,11 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:background="@drawable/rounded_corners">
+        <LinearLayout
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_width="0px"
+            android:layout_height="0px"/>
 
         <EditText
             android:id="@+id/messageTextField"
@@ -75,16 +80,19 @@
             android:layout_weight="0.9"
             android:textSize="16sp"
             android:background="@null"
-            android:hint="Write a command ..."
-            android:textColor="#000000"/>
+            android:hint="Say or write something ... "
+            android:textColor="#000000"
+            android:nextFocusUp="@id/messageTextField"
+            android:nextFocusLeft="@id/messageTextField"/>
 
 
         <Button
+            android:id="@+id/sendButton"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginRight="16dp"
             android:padding="15dp"
-            android:background="@drawable/send_button_blue"
+            android:background="@drawable/mic_button_blue"
             android:onClick="sendMessage"/>
 
 
