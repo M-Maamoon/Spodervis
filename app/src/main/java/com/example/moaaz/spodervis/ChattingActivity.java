@@ -119,6 +119,14 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                 }
             });
 
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    reply();
+                }
+            }, 1000);
+
         }
         else
         {
@@ -135,6 +143,33 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             messageTextField.setHint("Listening ... ");
 
         }
+
+    }
+
+    public void reply()
+    {
+        TextView message = new TextView(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
+                (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(fromDpToPixel(8), 0, fromDpToPixel(72), fromDpToPixel(8));
+        lp.gravity = Gravity.LEFT;
+
+        message.setTextColor(Color.rgb(255, 255, 255));
+        message.setBackgroundResource(R.drawable.spodervis_text_bubble);
+        message.setLayoutParams(lp);
+        message.setText("¯\\_(ツ)_/¯");
+        message.setTextSize(16);
+        message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
+        LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
+        messageArea.addView(message);
+        messageTextField.setText("");
+        scroll.post(new Runnable() {
+
+            @Override
+            public void run() {
+                scroll.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
 
     }
 

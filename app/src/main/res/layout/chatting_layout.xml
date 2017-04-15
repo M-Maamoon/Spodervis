@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/chat_background"
     android:weightSum="1">
 
 
@@ -12,6 +13,7 @@
         android:layout_weight="1"
         android:layout_margin="8dp"
         android:fillViewport="true"
+
         >
         <LinearLayout
             android:id="@+id/messagesArea"
