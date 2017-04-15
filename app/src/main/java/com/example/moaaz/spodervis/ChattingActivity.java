@@ -1,25 +1,42 @@
 package com.example.moaaz.spodervis;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.RequiresApi;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.text.TextWatcher;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import com.example.moaaz.spodervis.utils.RoundedImageView;
 
 import java.util.ArrayList;
 
@@ -33,12 +50,27 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     ScrollView scroll;
     private SpeechRecognizer speech;
     boolean listening = false;
+    boolean isRevealed = false;
 
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chatting_layout);
         scroll =  (ScrollView) findViewById(R.id.chatScrollView);
         messageTextField = (EditText) findViewById(R.id.messageTextField);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+       // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+     //   getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoderman);
+
+        Bitmap circle = RoundedImageView.getCroppedBitmap(recImage ,100);
+        Drawable d = new BitmapDrawable(getResources(), circle);
+        ImageView logo = (ImageView) findViewById(R.id.logo);
+        logo.setImageDrawable(d);
+
 
         scroll.postDelayed(new Runnable() {
             @Override
@@ -47,21 +79,76 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             }
         }, 100);
 
-        messageTextField.setOnClickListener(new View.OnClickListener()
+        messageTextField.setOnTouchListener(new View.OnTouchListener()
         {
-            public void onClick(View v)
-            {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
                 if (v.getId() == messageTextField.getId())
                 {
+                    if (isRevealed)
+                    {
+                        reveal();
+                    }
                     messageTextField.setCursorVisible(true);
                 }
+                return false;
             }
+
+        });
+
+
+        final LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
+        messageArea.setOnTouchListener(new View.OnTouchListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public boolean onTouch(View v,  MotionEvent event)
+            {
+                if (v.getId() == messageArea.getId())
+                {
+                    if (isRevealed)
+                    {
+                        reveal();
+                    }
+                }
+                return false;
+            }
+
+
         });
 
         buttonBackgroundChanger();
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         speech.setRecognitionListener(this);
     }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.action_bar_menu, menu);
+        return true;
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.backButton:
+                this.finish();
+                return true;
+            case R.id.revealButtonItem:
+                reveal();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    public void backHome(View view)
+    {
+        this.finish();
+    }
+
 
     public void buttonBackgroundChanger()
     {
@@ -90,8 +177,14 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void sendMessage(View view)
     {
+
+        if(isRevealed)
+        {
+            reveal();
+        }
 
         String stringMessage = messageTextField.getText().toString();
         if (!stringMessage.equals(""))
@@ -102,14 +195,14 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             lp.setMargins(fromDpToPixel(72), 0, fromDpToPixel(8), fromDpToPixel(8));
             lp.gravity = Gravity.RIGHT;
 
-            message.setTextColor(Color.rgb(65, 105, 225));
+            message.setTextColor(Color.rgb(255, 255, 255));
             message.setBackgroundResource(R.drawable.user_text_bubble);
             message.setLayoutParams(lp);
             message.setText(stringMessage);
             message.setTextSize(16);
             message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
             LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
-            messageArea.addView(message);
+            messageArea.addView(message, messageArea.getChildCount() - 1);
             messageTextField.setText("");
             scroll.post(new Runnable() {
 
@@ -161,7 +254,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         message.setTextSize(16);
         message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
         LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
-        messageArea.addView(message);
+        messageArea.addView(message, messageArea.getChildCount() - 1);
         messageTextField.setText("");
         scroll.post(new Runnable() {
 
@@ -172,6 +265,49 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         });
 
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void reveal()
+    {
+        if (!isRevealed)
+        {
+            isRevealed = true;
+            LinearLayout myView = (LinearLayout) findViewById(R.id.shortcutLayout);
+            int cx = myView.getWidth() - 60;
+            int cy = 0;
+            float finalRadius = (float) Math.hypot(cx, cy);
+
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(myView, cx, cy, 0, finalRadius);
+
+            myView.setVisibility(View.VISIBLE);
+            anim.start();
+        }
+        else
+        {
+            isRevealed = false;
+            final LinearLayout myView = (LinearLayout) findViewById(R.id.shortcutLayout);
+
+            int cx = myView.getWidth() - 60;
+            int cy = 0;
+
+            float initialRadius = (float) Math.hypot(cx, cy);
+
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(myView, cx, cy, initialRadius, 0);
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    myView.setVisibility(View.INVISIBLE);
+                }
+            });
+
+            anim.start();
+        }
+    }
+
+
 
 
     //Button Animation
@@ -276,6 +412,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void run() {
                 messageTextField.setHint("Say or write something ... ");
