@@ -1,13 +1,19 @@
 package com.example.moaaz.spodervis;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
@@ -34,6 +40,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         configurePubNub();
 
+        Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoderman);
+
+        Bitmap circle = RoundedImageView.getCroppedBitmap(recImage ,100);
+        Drawable d = new BitmapDrawable(getResources(), circle);
+        ImageView logo = (ImageView) findViewById(R.id.logo);
+        logo.setImageDrawable(d);
+
+        ImageView chatImage = (ImageView) findViewById(R.id.chat_image);
+        chatImage.setImageDrawable(d);
 
     }
 
@@ -75,14 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void sendCommand(View view) throws Exception
-    {
-        EditText commandField = (EditText) findViewById(R.id.commandField);
-        String command =  commandField.getText().toString();
-        nlp n = new nlp(this);
-        n.execute(command).get();
-        executeCommand(n.value);
-    }
+
 
     public void switchLight(String option)
     {

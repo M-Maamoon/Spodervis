@@ -11,28 +11,57 @@
     tools:context="com.example.moaaz.spodervis.MainActivity">
 
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#ffffff"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
-    <Button
-        android:id="@+id/sendCommand"
+
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="36dp"
+            android:layout_gravity="left"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:text="Spodervis"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+    </android.support.v7.widget.Toolbar>
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:layout_below="@id/my_toolbar"
+    android:gravity="center_vertical"
+    android:layout_marginTop="36dp"
+    android:clickable="true"
+    android:onClick="startChatting">
+    <ImageView
+        android:id="@+id/chat_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="sendCommand"
-        android:onClick="startChatting"/>
-
-    <EditText
-        android:id="@+id/commandField"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/sendCommand"
-        android:textColor="#000000"/>
+        android:layout_marginLeft="36dp"
+        android:layout_gravity="left"/>
 
     <TextView
-        android:id="@+id/text"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/commandField"
+        android:layout_marginLeft="36dp"
+        android:text="Spoderbot"
         android:textColor="#000000"
-        android:gravity="center"
-        android:textSize="24sp"
-        />
+        android:textSize="20sp" />
+
+</LinearLayout>
+
 </RelativeLayout>
