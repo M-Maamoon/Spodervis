@@ -1,9 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/chat_background"
+    android:id="@+id/mainLayout"
     android:weightSum="1">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#ffffff"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+
+        <Button
+            android:id="@+id/backButton"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_gravity="left"
+            android:background="@drawable/ic_back"
+            android:onClick="backHome"/>
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="36dp"
+            android:layout_gravity="left"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:text="Spodervis"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
+
+        </android.support.v7.widget.Toolbar>
+
+
+
 
 
     <ScrollView
@@ -12,9 +51,8 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:layout_margin="8dp"
-        android:fillViewport="true"
+        android:fillViewport="true">
 
-        >
         <LinearLayout
             android:id="@+id/messagesArea"
             android:layout_width="match_parent"
@@ -23,7 +61,6 @@
             android:gravity="bottom">
 
                 <TextView
-
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
@@ -40,7 +77,22 @@
                     android:text="Hrey, how can I help you today?"/>
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginLeft="72dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:paddingRight="16dp"
+                android:paddingLeft="16dp"
+                android:textColor="#ffffff"
+                android:textSize="16sp"
+                android:background="@drawable/user_text_bubble"
+                android:text="Open the door, please."/>
 
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
@@ -53,8 +105,8 @@
                 android:paddingLeft="16dp"
                 android:textColor="#4169e1"
                 android:textSize="16sp"
-                android:background="@drawable/user_text_bubble"
-                android:text="u lok leik an fagit"/>
+                android:text=""/>
+
 
         </LinearLayout>
     </ScrollView>
@@ -64,9 +116,12 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_margin="8dp"
+        android:layout_alignParentBottom="true"
         android:gravity="center"
         android:orientation="horizontal"
-        android:background="@drawable/rounded_corners">
+        android:background="@drawable/rounded_corners"
+        android:clickable="true"
+        android:focusable="false">
         <LinearLayout
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -101,5 +156,45 @@
 
 
     </LinearLayout>
+    <LinearLayout
+        android:id="@+id/shortcutLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#ffffff"
+        android:gravity="center"
+        android:paddingTop="32dp"
+        android:paddingBottom="32dp"
+        android:visibility="invisible"
+        android:layout_below="@id/my_toolbar">
 
-</LinearLayout>
+        <ImageButton
+            android:id="@+id/cameraButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="25dp"
+            android:background="@drawable/ic_camera"/>
+
+        <ImageButton
+            android:id="@+id/lightButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="25dp"
+            android:background="@drawable/ic_lightbulb"/>
+
+        <ImageButton
+            android:id="@+id/unlockButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="25dp"
+            android:background="@drawable/ic_lock"/>
+
+        <ImageButton
+            android:id="@+id/musicButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+
+            android:background="@drawable/ic_music"/>
+    </LinearLayout>
+
+</RelativeLayout>
