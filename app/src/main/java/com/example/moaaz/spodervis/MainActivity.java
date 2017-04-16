@@ -1,16 +1,21 @@
 package com.example.moaaz.spodervis;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.os.Vibrator;
 import android.widget.TextView;
 
 import com.example.moaaz.spodervis.utils.RoundedImageView;
@@ -24,6 +29,7 @@ import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.util.Arrays;
+import java.util.Random;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -31,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     PNConfiguration pnConfiguration;
     PubNub pubnub;
- //   com.example.moaaz.spodervis.nlp nlp  = new nlp(this);
+    boolean connected = false;
     boolean lightOn = false;
 
     @Override
@@ -40,55 +46,110 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         configurePubNub();
 
-        Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoderman);
 
-        Bitmap circle = RoundedImageView.getCroppedBitmap(recImage ,100);
-        Drawable d = new BitmapDrawable(getResources(), circle);
-        ImageView logo = (ImageView) findViewById(R.id.logo);
-        logo.setImageDrawable(d);
+        ImageView spodermenIcon = (ImageView) findViewById(R.id.spoderbot_icon);
+        spodermenIcon.setImageDrawable(new BitmapDrawable(getResources(), RoundedImageView.getCroppedBitmap(
+                BitmapFactory.decodeResource(getResources(), R.drawable.spoderman),100)));
 
-        ImageView chatImage = (ImageView) findViewById(R.id.chat_image);
-        chatImage.setImageDrawable(d);
+
+        ImageView babySpodermenIcon = (ImageView) findViewById(R.id.child_icon);
+        babySpodermenIcon.setImageDrawable(new BitmapDrawable(getResources(), RoundedImageView.getCroppedBitmap(
+                BitmapFactory.decodeResource(getResources(), R.drawable.baby_spodermen),100)));
+
+        registerReceiver(new NetworkStateReceiver(),
+                new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
 
     }
+
+
+    public class NetworkStateReceiver extends BroadcastReceiver {
+        public void onReceive(Context context, Intent intent) {
+            Log.i("Network changed", "lel");
+            isNetworkAvailable();
+        }
+    }
+
+    private void isNetworkAvailable()
+    {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+        ImageView connectionIcon = (ImageView) findViewById(R.id.connectionIcon);
+
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnected())
+        {
+            connected = true;
+            connectionIcon.setImageResource(R.drawable.ic_connected);
+        }
+        else
+        {
+            connected = false;
+            connectionIcon.setImageResource(R.drawable.ic_disconnected);
+            displayNotConnected();
+        }
+
+    }
+
 
     public void startChatting(View view)
     {
-        Intent intent = new Intent(MainActivity.this, ChattingActivity.class);
-        startActivity(intent);
-    }
-
-    public void executeCommand(String response)
-    {
-      //  String response = nlp.value;
-        if (response.equals("light on")) {
-            TextView t = (TextView) findViewById(R.id.text);
-            t.setText("Switching light on!");
-            switchLight("light_on");
-        }
-        if (response.equals("light off")) {
-            TextView t = (TextView) findViewById(R.id.text);
-            t.setText("Switching light off!");
-            switchLight("light_off");
-        }
-        if (response.equals("start music")) {
-            TextView t = (TextView) findViewById(R.id.text);
-            t.setText("Switching light off!");
-            switchLight("music_on");
-        }
-        if (response.equals("stop music")) {
-            TextView t = (TextView) findViewById(R.id.text);
-            t.setText("Switching light off!");
-            switchLight("music_off");
-        }
-        if (response.equals("null"))
+        if (connected)
         {
-            TextView t = (TextView) findViewById(R.id.text);
-            t.setText("I cannot catch that!");
+            findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+            Intent intent = new Intent(MainActivity.this, ChattingActivity.class);
+            startActivity(intent);
+        }
+        else
+        {
+            displayNotConnected();
+        }
+    }
+
+    public void displayNotConnected()
+    {
+        Log.i("Not", "Connected");
+        ImageView connectionIcon = (ImageView) findViewById(R.id.connectionIcon);
+        connectionIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake));
+        final Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(50);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                v.vibrate(50);
+            }
+        }, 100);
+
+
+        Random n = new Random();
+        int message = n.nextInt(5);
+        String m = "";
+        switch (message)
+        {
+            case 0:
+                m = "No internet connection"; break;
+            case 1:
+                m = "How are you even alive without internet?"; break;
+            case 2:
+                m = "Did you hear that we are in 2017? Have internet!"; break;
+            case 3:
+                m = "No internet. Does not matter, it is all meaningless anyways ..."; break;
+            case 4:
+                m = "Internet connection not found. Just like your life lel."; break;
         }
 
-
+        TextView noInternetConnectionView = (TextView) findViewById(R.id.noConnectionText);
+        noInternetConnectionView.setText(m);
+        noInternetConnectionView.setVisibility(View.VISIBLE);
     }
+
+
+
+
+
+
 
 
 

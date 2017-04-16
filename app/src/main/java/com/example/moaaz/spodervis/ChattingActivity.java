@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -51,6 +53,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     private SpeechRecognizer speech;
     boolean listening = false;
     boolean isRevealed = false;
+    boolean connected = false;
 
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -120,10 +123,21 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
         });
 
+
+
         buttonBackgroundChanger();
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         speech.setRecognitionListener(this);
     }
+
+    private boolean isNetworkAvailable()
+    {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
 
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
