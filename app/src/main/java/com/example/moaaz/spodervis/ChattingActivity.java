@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -39,8 +41,18 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.moaaz.spodervis.utils.RoundedImageView;
+import com.pubnub.api.PNConfiguration;
+import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.models.consumer.PNPublishResult;
+import com.pubnub.api.models.consumer.PNStatus;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Moaaz on 4/13/2017.
@@ -50,10 +62,17 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
     EditText messageTextField;
     ScrollView scroll;
+    nlp n;
     private SpeechRecognizer speech;
     boolean listening = false;
     boolean isRevealed = false;
     boolean connected = false;
+    Hashtable<String, Boolean> state = new Hashtable<String, Boolean>();
+    String[][] messages = new String[5][];
+    PNConfiguration pnConfiguration;
+    PubNub pubnub;
+    TextToSpeech speaker;
+    MediaPlayer messageEffect;
 
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -64,8 +83,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         Toolbar toolbar = (Toolbar) findViewById(R.id.my_toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
-       // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-     //   getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoderman);
 
@@ -126,8 +143,34 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
 
         buttonBackgroundChanger();
+        initMessageArrays();
+        initState();
+        speaker = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                speaker.setLanguage(Locale.US);
+            }
+        });
+
+        messageEffect = MediaPlayer.create(this, R.raw.message_effect);
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         speech.setRecognitionListener(this);
+    }
+
+    public void initState()
+    {
+        state.put("light", false);
+        state.put("music", false);
+    }
+
+    public void initMessageArrays()
+    {
+        messages[0] = getResources().getStringArray(R.array.light_on);
+        messages[1] = getResources().getStringArray(R.array.light_off);
+        messages[2] = getResources().getStringArray(R.array.music_on);
+        messages[3] = getResources().getStringArray(R.array.music_off);
+        messages[4] = getResources().getStringArray(R.array.noop);
+
     }
 
     private boolean isNetworkAvailable()
@@ -192,17 +235,16 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void sendMessage(View view)
-    {
-
+    public void sendMessage(View view) throws ExecutionException, InterruptedException {
         if(isRevealed)
         {
             reveal();
         }
 
-        String stringMessage = messageTextField.getText().toString();
+        final String stringMessage = messageTextField.getText().toString();
         if (!stringMessage.equals(""))
         {
+
             TextView message = new TextView(this);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
                     (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -225,14 +267,22 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                     scroll.fullScroll(ScrollView.FOCUS_DOWN);
                 }
             });
+            messageEffect.start();
 
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable()
+            {
                 @Override
                 public void run() {
-                    reply();
+                    try {
+                        handleCommand(stringMessage);
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }, 1000);
+            }, 100);
 
         }
         else
@@ -248,12 +298,69 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             messageTextField.setTextColor(Color.GRAY);
             messageTextField.setCursorVisible(false);
             messageTextField.setHint("Listening ... ");
-
         }
+    }
+
+
+    public void handleCommand(String command) throws ExecutionException, InterruptedException {
+        n = new nlp(this);
+        n.execute(command).get();
+        reply(n.value);
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                executeCommand(n.value);
+            }
+        };
+
+        thread.start();
 
     }
 
-    public void reply()
+    public void executeCommand(String response)
+    {
+        String command = "";
+        if (!state.get("light") &&
+                response.equals("switch_light on")) {
+
+            command = "light_on";
+        }
+        else if (state.get("light") &&
+                response.equals("switch_light_off")) {
+            command = "light_off";
+        }
+        else if (!state.get("music") &&
+                response.equals("play_music")) {
+
+            command = "music_on";
+        }
+        else if (state.get("music") &&
+                response.equals("stop_music")) {
+           command = "music_off";
+        }
+        if (!command.equals(""))
+             sendCommand(command);
+
+
+    }
+
+    public void sendCommand(String command)
+    {
+
+        pubnub.publish()
+                .message(Arrays.asList(command))
+                .channel("commands")
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError to see if error happened
+                    }
+                });
+    }
+
+    public void reply(String response)
     {
         TextView message = new TextView(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
@@ -264,11 +371,28 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         message.setTextColor(Color.rgb(255, 255, 255));
         message.setBackgroundResource(R.drawable.spodervis_text_bubble);
         message.setLayoutParams(lp);
-        message.setText("¯\\_(ツ)_/¯");
         message.setTextSize(16);
         message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
         LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
         messageArea.addView(message, messageArea.getChildCount() - 1);
+        String r = makeReply(response);
+
+        message.setText(r);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (r.contains("_"))
+                speaker.speak("This is meaningless to me, Sir!",TextToSpeech.QUEUE_FLUSH,null,null);
+            else
+                speaker.speak(r, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+        else
+        {
+            if (r.contains("_"))
+                speaker.speak("This is meaningless to me, Sir!", TextToSpeech.QUEUE_FLUSH, null);
+            else
+                speaker.speak(r, TextToSpeech.QUEUE_FLUSH, null);
+
+        }
+
         messageTextField.setText("");
         scroll.post(new Runnable() {
 
@@ -278,6 +402,67 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             }
         });
 
+    }
+
+    public String makeReply(String response)
+    {
+
+        if (response.equals("switch_on_light"))
+        {
+            if(state.get("light"))
+            {
+                return messages[0][(new Random().nextInt(8 - 6) + 6)];
+            }
+
+            state.put("light", true);
+            Log.i("Message:", messages[0][(new Random().nextInt(6))]);
+            return messages[0][(new Random().nextInt(6))];
+        }
+
+        else if (response.equals("switch_off_light"))
+        {
+            if(!state.get("light"))
+            {
+                return messages[1][(new Random().nextInt(8 - 6) + 6)];
+            }
+
+            state.put("light", false);
+            return messages[1][(new Random().nextInt(6))];
+        }
+        else if (response.equals("play_music"))
+        {
+            if(state.get("music"))
+            {
+                return messages[2][(new Random().nextInt(8 - 6) + 6)];
+            }
+
+            state.put("music", true);
+            return messages[2][(new Random().nextInt(6))];
+        }
+
+        else if (response.equals("stop_music"))
+        {
+            if(!state.get("music"))
+            {
+                return messages[3][(new Random().nextInt(8 - 6) + 6)];
+            }
+
+            state.put("music", false);
+            return messages[3][(new Random().nextInt(6))];
+        }
+        else if (response.equals("k"))
+        {
+            return "K";
+        }
+        else if (response.equals("question"))
+        {
+            return "Do you have an existential crisis, Sir?";
+        }
+        else if (response.equals("null"))
+        {
+            return messages[4][(new Random().nextInt(10))];
+        }
+        return "";
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -430,7 +615,13 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             @Override
             public void run() {
                 messageTextField.setHint("Say or write something ... ");
-                sendMessage(null);
+                try {
+                    sendMessage(null);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }, 1000);
     }

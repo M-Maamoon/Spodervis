@@ -20,8 +20,8 @@ import java.net.URLEncoder;
 public class nlp extends AsyncTask<String, Void, Void>
 {
     String value = "";
-    MainActivity main;
-    public nlp(MainActivity main) {
+    ChattingActivity main;
+    public nlp(ChattingActivity main) {
         this.main = main;
     }
 
@@ -88,6 +88,7 @@ public class nlp extends AsyncTask<String, Void, Void>
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
         JSONArray arr = null;
         try {
             arr = json.getJSONArray("outcomes");
@@ -100,26 +101,29 @@ public class nlp extends AsyncTask<String, Void, Void>
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.i("Response: ", json.toString());
+
         if (entities.keys().hasNext())
         {
-            JSONObject values = null;
             try {
-                values = (JSONObject) entities.getJSONArray((String)entities.keys().next()).get(0);
+                JSONObject values = (JSONObject) entities.getJSONArray(entities.keys().next()).get(0);
+                double confidence = Double.parseDouble(values.get("confidence").toString());
+                if (confidence > 0.6)
+                    this.value = entities.keys().next();
+                else
+                    this.value = "null";
+                Log.i("Entity: ", this.value);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            try {
-                value = (String) values.get("value");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
         }
         else
         {
-           this.value = "null";
+            this.value = "null";
+            Log.i("Entity: ", "I can't understand");
         }
-        Log.d("Value: ", value);
-        //return value;
+
         return null;
     }
 }
