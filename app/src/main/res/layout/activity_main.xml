@@ -44,8 +44,7 @@
         android:layout_below="@id/my_toolbar"
         android:gravity="center"
         android:layout_marginTop="144dp"
-        android:clickable="true"
-        android:onClick="startChatting">
+        >
 
         <LinearLayout
             android:id="@+id/spoderbot"
@@ -59,7 +58,9 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/rounded_corner_buttons"/>
+                android:background="@drawable/rounded_corner_buttons"
+                android:clickable="true"
+                />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -81,7 +82,8 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/rounded_corner_buttons"/>
+                android:background="@drawable/rounded_corner_buttons"
+                android:clickable="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -119,7 +121,8 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/ic_cam"
-                android:background="@drawable/rounded_corner_buttons"/>
+                android:background="@drawable/rounded_corner_buttons"
+                android:clickable="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -141,7 +144,8 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:background="@drawable/rounded_corner_buttons"
-                android:src="@drawable/ic_door"/>
+                android:src="@drawable/ic_door"
+                android:clickable="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -165,7 +169,8 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:background="@drawable/rounded_corner_buttons"
-                android:src="@drawable/ic_pet"/>
+                android:src="@drawable/ic_pet"
+                android:clickable="true"/>
 
             <TextView
                 android:layout_width="wrap_content"
