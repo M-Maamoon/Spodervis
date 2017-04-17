@@ -1,3 +1,168 @@
 <resources>
     <string name="app_name">Spodervis</string>
+    <string-array name="light_on">
+        <item>
+            Sure thing!
+        </item>
+        <item>
+            Aaaaaaaand the light is on.
+        </item>
+        <item>
+            Voila!
+        </item>
+        <item>
+            Of course.
+        </item>
+
+        <item>
+            Your life is better with light, huh?
+        </item>
+
+        <item>
+            Aye Aye Captain!
+        </item>
+        <item>
+            Are you blind? It is already on.
+        </item>
+
+        <item>
+            It is already on. Sir!
+        </item>
+
+    </string-array>
+
+    <string-array name="light_off">
+        <item>
+            Sure thing!
+        </item>
+        <item>
+            Aaaaaaaand the light is off.
+        </item>
+        <item>
+            Tadaaaa!
+        </item>
+        <item>
+            Of course.
+        </item>
+
+        <item>
+            Your life is better in the dark, huh?
+        </item>
+
+        <item>
+            Aye Aye Captain!
+        </item>
+        <item>
+            Are you blind? It is already off.
+        </item>
+
+        <item>
+            It is already off. Sir!
+        </item>
+
+    </string-array>
+
+    <string-array name="music_off">
+        <item>
+            Sure thing!
+        </item>
+        <item>
+            Enjoy silence.
+        </item>
+        <item>
+            Yes sir!
+        </item>
+        <item>
+            Of course.
+        </item>
+
+        <item>
+            The music is off.
+        </item>
+
+        <item>
+            Aye Aye Captain!
+        </item>
+        <item>
+            Are you deaf? It is already off.
+        </item>
+
+        <item>
+            The music is already off. Sir!
+        </item>
+
+    </string-array>
+
+    <string-array name="music_on">
+        <item>
+            Sure thing!
+        </item>
+        <item>
+            Enjoy your music.
+        </item>
+        <item>
+            Yes sir!
+        </item>
+        <item>
+            Of course.
+        </item>
+
+        <item>
+            The music is on.
+        </item>
+
+        <item>
+            Aye Aye Captain!
+        </item>
+        <item>
+            Are you deaf? It is already on.
+        </item>
+
+        <item>
+            The music is already on. Sir!
+        </item>
+
+    </string-array>
+
+    <string-array name="noop">
+        <item>
+            I don\'t understand!
+        </item>
+        <item>
+            What?
+        </item>
+        <item>
+            I can\'t control that.
+        </item>
+        <item>
+            What you said is meaningless to me. But it\'s okay, it is all meaningless anyways.
+        </item>
+
+        <item>
+            I\'m not that advanced to understand that.
+        </item>
+
+        <item>
+            I don\'t get it but I\'m your robot and I\'m forced to agree with you.
+        </item>
+
+        <item>
+            I don\'t know what do you mean. Blame my programmer for not teaching my this.
+        </item>
+
+
+        <item>
+            ¯\\_(ツ)_/¯
+        </item>
+
+        <item>
+           ¯\\_(ツ)_/¯
+        </item>
+
+        <item>
+           ¯\\_(ツ)_/¯
+        </item>
+
+
+    </string-array>
 </resources>
