@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     boolean connected = false;
     boolean lightOn = false;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,12 +63,89 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
 
+        setListeners();
+
+
     }
 
+    public void setListeners()
+    {
+        findViewById(R.id.spoderbot_icon).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (connected)
+                {
+                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+                    Intent intent = new Intent(MainActivity.this, ChattingActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    displayNotConnected();
+                }
+            }
+
+        });
+
+        findViewById(R.id.child_icon).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public  void onClick(View view)
+            {
+                if (connected)
+                {
+                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+                    Intent intent = new Intent(MainActivity.this, BabyActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    displayNotConnected();
+                }
+            }
+        });
+
+        findViewById(R.id.stream_icon).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public  void onClick(View view)
+            {
+                if (connected)
+                {
+                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+                    Intent intent = new Intent(MainActivity.this, StreamActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    displayNotConnected();
+                }
+            }
+        });
+
+        findViewById(R.id.door_icon).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public  void onClick(View view)
+            {
+                if (connected)
+                {
+                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+                    Intent intent = new Intent(MainActivity.this, DoorActivity.class);
+                    startActivity(intent);
+                }
+                else
+                {
+                    displayNotConnected();
+                }
+            }
+        });
+    }
 
     public class NetworkStateReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
-            Log.i("Network changed", "lel");
             isNetworkAvailable();
         }
     }
@@ -82,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
         {
             connected = true;
             connectionIcon.setImageResource(R.drawable.ic_connected);
+            findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
         }
         else
         {
@@ -146,13 +227,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
-
-
-
-
     public void switchLight(String option)
     {
         pubnub.publish()
@@ -213,12 +287,8 @@ public class MainActivity extends AppCompatActivity {
             public void status(PubNub pubnub, PNStatus status) {
                 if (status.getOperation() != null) {
                     switch (status.getOperation()) {
-                        // let's combine unsubscribe and subscribe handling for ease of use
                         case PNSubscribeOperation:
                         case PNUnsubscribeOperation:
-                            // note: subscribe statuses never have traditional
-                            // errors, they just have categories to represent the
-                            // different issues or successes that occur as part of subscribe
                             switch (status.getCategory()) {
                                 case PNConnectedCategory:
                                     // this is expected for a subscribe, this means there is no error or issue whatsoever
