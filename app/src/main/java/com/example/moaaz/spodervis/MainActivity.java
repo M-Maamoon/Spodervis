@@ -5,17 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Vibrator;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.os.Vibrator;
 import android.widget.TextView;
 
 import com.example.moaaz.spodervis.utils.RoundedImageView;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     PNConfiguration pnConfiguration;
     PubNub pubnub;
+    Typeface font;
     boolean connected = false;
     boolean lightOn = false;
 
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         configurePubNub();
 
+        font = Typeface.createFromAsset(getAssets(),"fonts/HelveticaNeue-Light.ttf");
 
         ImageView spodermenIcon = (ImageView) findViewById(R.id.spoderbot_icon);
         spodermenIcon.setImageDrawable(new BitmapDrawable(getResources(), RoundedImageView.getCroppedBitmap(
@@ -62,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(new NetworkStateReceiver(),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-
+        TextView spoderText = (TextView)findViewById(R.id.spoderbot_text);
+        spoderText.setTypeface(font);
         setListeners();
 
 
@@ -70,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void setListeners()
     {
-        findViewById(R.id.spoderbot_icon).setOnClickListener(new View.OnClickListener()
+        findViewById(R.id.spoder_layout).setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -116,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
                     Intent intent = new Intent(MainActivity.this, StreamActivity.class);
+                    intent.putExtra(StreamActivity.LOCATION, "http://197.53.26.106:22143");
                     startActivity(intent);
                 }
                 else
@@ -144,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+
     public class NetworkStateReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
             isNetworkAvailable();
@@ -161,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
         if (activeNetworkInfo != null && activeNetworkInfo.isConnected())
         {
             connected = true;
-            connectionIcon.setImageResource(R.drawable.ic_connected);
+            connectionIcon.setVisibility(View.INVISIBLE);
             findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
         }
         else
