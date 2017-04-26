@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
-
+                Log.i("Message received:", message.getMessage().toString());
             }
 
             @Override
@@ -343,5 +343,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        pubnub.subscribe().channels(Arrays.asList("door_cam")).execute();
+        Log.i("Subscribed:", "Subscribed to channel door_cam");
     }
 }

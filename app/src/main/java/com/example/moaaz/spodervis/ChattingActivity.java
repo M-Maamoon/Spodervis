@@ -39,13 +39,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
 import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.PNCallback;
+import com.pubnub.api.callbacks.SubscribeCallback;
 import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
+import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
+import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,6 +157,8 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         messageEffect = MediaPlayer.create(this, R.raw.message_effect);
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         speech.setRecognitionListener(this);
+
+        configurePubNub();
     }
 
     public void initState()
@@ -362,7 +366,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
     public void reply(String response)
     {
-        TextView message = new TextView(this);
+     /*   TextView message = new TextView(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
                 (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.setMargins(fromDpToPixel(8), 0, fromDpToPixel(72), fromDpToPixel(8));
@@ -392,8 +396,45 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                 speaker.speak(r, TextToSpeech.QUEUE_FLUSH, null);
 
         }
+        scroll.post(new Runnable() {
 
-        messageTextField.setText("");
+            @Override
+            public void run() {
+                scroll.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
+*/
+        String r = makeReply(response);
+        appendMessage(r);
+    }
+
+
+    public void appendMessage(String m)
+    {
+        TextView message = new TextView(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
+                (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(fromDpToPixel(8), 0, fromDpToPixel(72), fromDpToPixel(8));
+        lp.gravity = Gravity.LEFT;
+
+        message.setTextColor(Color.rgb(255, 255, 255));
+        message.setBackgroundResource(R.drawable.spodervis_text_bubble);
+        message.setLayoutParams(lp);
+        message.setTextSize(16);
+        message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
+        LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
+        messageArea.addView(message, messageArea.getChildCount() - 1);
+
+
+        message.setText(m);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+        else
+        {
+                speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null);
+        }
+
         scroll.post(new Runnable() {
 
             @Override
@@ -636,4 +677,79 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         return (int)(dpValue * d);
     }
 
+
+    public void configurePubNub()
+    {
+        pnConfiguration = new PNConfiguration();
+        pnConfiguration.setSubscribeKey("sub-c-6e10bdfe-1ad0-11e7-aca9-02ee2ddab7fe");
+        pnConfiguration.setPublishKey("pub-c-bcba6aa9-1ae4-4658-bfbd-ab52df9adb44");
+        pubnub = new PubNub(pnConfiguration);
+
+        pubnub.addListener(new SubscribeCallback() {
+            @Override
+            public void status(PubNub pubnub, PNStatus status) {
+                if (status.getOperation() != null) {
+                    switch (status.getOperation()) {
+                        case PNSubscribeOperation:
+                        case PNUnsubscribeOperation:
+                            switch (status.getCategory()) {
+                                case PNConnectedCategory:
+                                    // this is expected for a subscribe, this means there is no error or issue whatsoever
+                                case PNReconnectedCategory:
+                                    // this usually occurs if subscribe temporarily fails but reconnects. This means
+                                    // there was an error but there is no longer any issue
+                                case PNDisconnectedCategory:
+                                    // this is the expected category for an unsubscribe. This means there
+                                    // was no error in unsubscribing from everything
+                                case PNUnexpectedDisconnectCategory:
+                                    // this is usually an issue with the internet connection, this is an error, handle appropriately
+                                case PNAccessDeniedCategory:
+                                    // this means that PAM does allow this client to subscribe to this
+                                    // channel and channel group configuration. This is another explicit error
+                                default:
+                                    // More errors can be directly specified by creating explicit cases for other
+                                    // error categories of `PNStatusCategory` such as `PNTimeoutCategory` or `PNMalformedFilterExpressionCategory` or `PNDecryptionErrorCategory`
+                            }
+
+                        case PNHeartbeatOperation:
+                            // heartbeat operations can in fact have errors, so it is important to check first for an error.
+                            // For more information on how to configure heartbeat notifications through the status
+                            // PNObjectEventListener callback, consult <link to the PNCONFIGURATION heartbeart config>
+                            if (status.isError()) {
+                                // There was an error with the heartbeat operation, handle here
+                            } else {
+                                // heartbeat operation was successful
+                            }
+                        default: {
+                            // Encountered unknown status type
+                        }
+                    }
+                } else {
+                    // After a reconnection see status.getCategory()
+                }
+            }
+
+            @Override
+            public void message(PubNub pubnub, PNMessageResult message) {
+                final String m = message.getMessage().toString().replaceAll("\\[", "").replaceAll("\\]","");
+                Log.i("Message received:", m);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        appendMessage(m);
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void presence(PubNub pubnub, PNPresenceEventResult presence) {
+
+            }
+        });
+
+        pubnub.subscribe().channels(Arrays.asList("door_cam")).execute();
+        Log.i("Subscribed:", "Subscribed to channel door_cam");
+    }
 }
