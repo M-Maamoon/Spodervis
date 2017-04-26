@@ -1,9 +1,13 @@
 from pubnub.pnconfiguration import PNConfiguration
 from pubnub.pubnub import PubNub
-
+import pygame
 
 from pubnub.callbacks import SubscribeCallback
 from pubnub.enums import PNOperationType, PNStatusCategory
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(11, GPIO.OUT)
 
 pnconfig = PNConfiguration()
 pnconfig.subscribe_key = "sub-c-6e10bdfe-1ad0-11e7-aca9-02ee2ddab7fe"
@@ -58,7 +62,25 @@ class MySubscribeCallback(SubscribeCallback):
         pass  # handle incoming presence data
  
     def message(self, pubnub, message):
+		if message.message[0] ==  'light_on':
+			GPIO.output(11, GPIO.HIGH)
+		if message.message[0] ==  'light_off':
+			GPIO.output(11, GPIO.LOW)
+		if message.message[0] ==  'music_on':
+			playMusic()
+		if message.message[0] ==  'music_off':
+			stopMusic()
+	
 		print message.message
+		
+def playMusic():
+	pygame.mixer.init()
+	pygame.mixer.music.load("lost.mp3")
+	pygame.mixer.music.play()
+
+def stopMusic():
+	pygame.mixer.music.stop()
+	
 		 
 pubnub.add_listener(MySubscribeCallback())
 pubnub.subscribe().channels('commands').execute()
