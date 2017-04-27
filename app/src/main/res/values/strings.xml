@@ -165,4 +165,26 @@
 
 
     </string-array>
+
+    <string-array name="highlight">
+        <item>
+            Chat with Spoderbot
+        </item>
+
+        <item>
+            Control your home
+        </item>
+
+        <item>
+            Let Spoderbot judge you
+        </item>
+
+        <item>
+            See home status
+        </item>
+
+         <item>
+            See your daily routine
+        </item>
+    </string-array>
 </resources>

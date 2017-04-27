@@ -321,7 +321,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         String command = "";
         if (!state.get("light") &&
                 response.equals("switch_light on")) {
-
             command = "light_on";
         }
         else if (state.get("light") &&

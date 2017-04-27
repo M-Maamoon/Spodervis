@@ -1,5 +1,7 @@
 package com.example.moaaz.spodervis;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,16 +12,24 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
@@ -36,24 +46,24 @@ import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity {
-
 
     PNConfiguration pnConfiguration;
     PubNub pubnub;
     Typeface font;
     boolean connected = false;
-    boolean lightOn = false;
-
+    boolean isRevealed = false;
     private TextSwitcher mSwitcher;
+    String[] textToShow;
 
-    String textToShow[]={"Chat with Spoderbot","Control your home ...","See home status ...", "See your daily routine ...", "Let him judge you ..."};
-    int messageCount=textToShow.length;
+    int messageCount;
     int currentIndex = -1;
-
-
+    private Timer timer = new Timer();
+    private TimerTask timerTask;
 
 
 
@@ -82,23 +92,21 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
 
         setTextSwitcher();
+        textToShow =  getResources().getStringArray(R.array.highlight);
+        messageCount = textToShow.length;
     }
 
     public void setTextSwitcher()
     {
         mSwitcher = (TextSwitcher) findViewById(R.id.headline);
-
-        // Set the ViewFactory of the TextSwitcher that will create TextView object when asked
         mSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
 
             public View makeView() {
-                // TODO Auto-generated method stub
-                // create new textView and set the properties like clolr, size etc
                 TextView myText = new TextView(MainActivity.this);
                 myText.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-                myText.setTextSize(20);
+                myText.setTextSize(18);
                 myText.setTypeface(font);
-                myText.setTextColor(Color.DKGRAY);
+                myText.setTextColor(Color.GRAY);
                 return myText;
             }
         });
@@ -109,7 +117,22 @@ public class MainActivity extends AppCompatActivity {
         mSwitcher.setInAnimation(in);
         mSwitcher.setOutAnimation(out);
 
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                currentIndex++;
+                if(currentIndex == messageCount)
+                    currentIndex = 0;
 
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mSwitcher.setText(textToShow[currentIndex]);
+                    }
+                });
+            }
+        };
+        timer.schedule(timerTask, 0, 5000);
     }
 
     public void setListeners()
@@ -149,11 +172,6 @@ public class MainActivity extends AppCompatActivity {
                 {
                     displayNotConnected();
                 }
-                currentIndex++;
-                // If index reaches maximum reset it
-                if(currentIndex==messageCount)
-                    currentIndex=0;
-                mSwitcher.setText(textToShow[currentIndex]);
             }
         });
 
@@ -191,6 +209,16 @@ public class MainActivity extends AppCompatActivity {
                 {
                     displayNotConnected();
                 }
+            }
+        });
+
+        findViewById(R.id.profileButton).setOnClickListener(new View.OnClickListener()
+        {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v) {
+                               reveal();
             }
         });
     }
@@ -256,7 +284,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }, 100);
 
-
         Random n = new Random();
         int message = n.nextInt(5);
         String m = "";
@@ -280,19 +307,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void switchLight(String option)
-    {
-        pubnub.publish()
-                .message(Arrays.asList(option))
-                .channel("commands")
-                .async(new PNCallback<PNPublishResult>() {
-                    @Override
-                    public void onResponse(PNPublishResult result, PNStatus status) {
-                        // handle publish result, status always present, result if successful
-                        // status.isError to see if error happened
-                    }
-                });
-    }
 /*
     public void switchLight(View view)
     {
@@ -328,6 +342,12 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 */
+    public int fromDpToPixel(int dpValue)
+    {
+        float d = getResources().getDisplayMetrics().density;
+        return (int)(dpValue * d);
+    }
+
     public void configurePubNub()
     {
         pnConfiguration = new PNConfiguration();
@@ -389,8 +409,47 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         pubnub.subscribe().channels(Arrays.asList("door_cam")).execute();
         Log.i("Subscribed:", "Subscribed to channel door_cam");
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void reveal()
+    {
+        if (!isRevealed)
+        {
+            isRevealed = true;
+            LinearLayout myView = (LinearLayout) findViewById(R.id.profileLayout);
+            int cx = myView.getWidth() - 60;
+            int cy = 0;
+            float finalRadius = (float) Math.hypot(cx, cy);
+
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(myView, cx, cy, 0, finalRadius);
+
+            myView.setVisibility(View.VISIBLE);
+            anim.start();
+        }
+        else
+        {
+            isRevealed = false;
+            final LinearLayout myView = (LinearLayout) findViewById(R.id.profileLayout);
+
+            int cx = myView.getWidth() - 60;
+            int cy = 0;
+
+            float initialRadius = (float) Math.hypot(cx, cy);
+
+            Animator anim =
+                    ViewAnimationUtils.createCircularReveal(myView, cx, cy, initialRadius, 0);
+            anim.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    myView.setVisibility(View.INVISIBLE);
+                }
+            });
+            anim.start();
+        }
     }
 }
