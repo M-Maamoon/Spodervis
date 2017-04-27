@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
@@ -14,10 +15,14 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.pubnub.api.PNConfiguration;
@@ -41,6 +46,13 @@ public class MainActivity extends AppCompatActivity {
     Typeface font;
     boolean connected = false;
     boolean lightOn = false;
+
+    private TextSwitcher mSwitcher;
+
+    String textToShow[]={"Chat with Spoderbot","Control your home ...","See home status ...", "See your daily routine ...", "Let him judge you ..."};
+    int messageCount=textToShow.length;
+    int currentIndex = -1;
+
 
 
 
@@ -68,6 +80,34 @@ public class MainActivity extends AppCompatActivity {
         TextView spoderText = (TextView)findViewById(R.id.spoderbot_text);
         spoderText.setTypeface(font);
         setListeners();
+
+        setTextSwitcher();
+    }
+
+    public void setTextSwitcher()
+    {
+        mSwitcher = (TextSwitcher) findViewById(R.id.headline);
+
+        // Set the ViewFactory of the TextSwitcher that will create TextView object when asked
+        mSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
+
+            public View makeView() {
+                // TODO Auto-generated method stub
+                // create new textView and set the properties like clolr, size etc
+                TextView myText = new TextView(MainActivity.this);
+                myText.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+                myText.setTextSize(20);
+                myText.setTypeface(font);
+                myText.setTextColor(Color.DKGRAY);
+                return myText;
+            }
+        });
+
+        Animation in = AnimationUtils.loadAnimation(this,R.anim.slide_in);
+        Animation out = AnimationUtils.loadAnimation(this,R.anim.slide_out);
+
+        mSwitcher.setInAnimation(in);
+        mSwitcher.setOutAnimation(out);
 
 
     }
@@ -100,14 +140,20 @@ public class MainActivity extends AppCompatActivity {
             {
                 if (connected)
                 {
-                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
-                    Intent intent = new Intent(MainActivity.this, BabyActivity.class);
-                    startActivity(intent);
+                   // findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+                    //Intent intent = new Intent(MainActivity.this, BabyActivity.class);
+                    //startActivity(intent);
+
                 }
                 else
                 {
                     displayNotConnected();
                 }
+                currentIndex++;
+                // If index reaches maximum reset it
+                if(currentIndex==messageCount)
+                    currentIndex=0;
+                mSwitcher.setText(textToShow[currentIndex]);
             }
         });
 

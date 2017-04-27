@@ -273,9 +273,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             });
             messageEffect.start();
 
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable()
-            {
+            Thread thread = new Thread() {
                 @Override
                 public void run() {
                     try {
@@ -286,7 +284,9 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                         e.printStackTrace();
                     }
                 }
-            }, 100);
+            };
+
+            thread.start();
 
         }
         else
@@ -306,19 +306,13 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void handleCommand(String command) throws ExecutionException, InterruptedException {
         n = new nlp(this);
         n.execute(command).get();
         reply(n.value);
 
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                executeCommand(n.value);
-            }
-        };
-
-        thread.start();
+        executeCommand(n.value);
 
     }
 
@@ -364,6 +358,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                 });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void reply(String response)
     {
      /*   TextView message = new TextView(this);
@@ -404,18 +399,25 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             }
         });
 */
-        String r = makeReply(response);
-        appendMessage(r);
+        final String r = makeReply(response);
+        runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+               appendMessage(r);
+           }
+        });
+
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void appendMessage(String m)
     {
         TextView message = new TextView(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
                 (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.setMargins(fromDpToPixel(8), 0, fromDpToPixel(72), fromDpToPixel(8));
-        lp.gravity = Gravity.LEFT;
+        lp.gravity = Gravity.START;
 
         message.setTextColor(Color.rgb(255, 255, 255));
         message.setBackgroundResource(R.drawable.spodervis_text_bubble);
@@ -427,13 +429,11 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
 
         message.setText(m);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null, null);
-        }
+        if (m.contains("_"))
+            speaker.speak("This is meaningless to me, Sir!",TextToSpeech.QUEUE_FLUSH,null,null);
         else
-        {
-                speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null);
-        }
+            speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null, null);
+
 
         scroll.post(new Runnable() {
 
@@ -542,7 +542,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                     myView.setVisibility(View.INVISIBLE);
                 }
             });
-
             anim.start();
         }
     }
@@ -736,6 +735,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                     final String m = message.getMessage().toString().replaceAll("\\[", "").replaceAll("\\]", "");
                     Log.i("Message received:", m);
                     runOnUiThread(new Runnable() {
+                        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                         @Override
                         public void run() {
                             appendMessage(m);
@@ -763,6 +763,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                     Log.i("Entity", messageEntity[0]);
                     final String finalAppendingText = appendingText;
                     runOnUiThread(new Runnable() {
+                        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                         @Override
                         public void run() {
                             appendMessage(finalAppendingText);
@@ -770,8 +771,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                     });
 
                 }
-
-
             }
 
             @Override
