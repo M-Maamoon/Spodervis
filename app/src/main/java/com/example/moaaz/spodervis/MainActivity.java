@@ -6,10 +6,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -87,13 +89,27 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(new NetworkStateReceiver(),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        TextView spoderText = (TextView)findViewById(R.id.spoderbot_text);
-        spoderText.setTypeface(font);
-        setListeners();
+        TextView txt = (TextView)findViewById(R.id.spoderbot_text);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.username_text);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.email_text);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.name_text);
+        txt.setTypeface(font);
 
-        setTextSwitcher();
         textToShow =  getResources().getStringArray(R.array.highlight);
         messageCount = textToShow.length;
+
+        Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoderman);
+
+        Bitmap circle = RoundedImageView.getCroppedBitmap(recImage ,100);
+        Drawable d = new BitmapDrawable(getResources(), circle);
+        ImageView logo = (ImageView) findViewById(R.id.logo);
+        logo.setImageDrawable(d);
+
+        setListeners();
+        setTextSwitcher();
     }
 
     public void setTextSwitcher()

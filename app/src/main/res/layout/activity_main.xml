@@ -13,8 +13,11 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="#ffffff"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+        android:elevation="6dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
         <ImageView
             android:id="@+id/logo"
@@ -51,10 +54,6 @@
 
 
     </android.support.v7.widget.Toolbar>
-
-
-
-
 
 
     <TextSwitcher
@@ -225,42 +224,56 @@
     <LinearLayout
         android:id="@+id/profileLayout"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="200dp"
         android:orientation="horizontal"
         android:background="#ffffff"
+        android:visibility="invisible"
         android:layout_below="@+id/my_toolbar"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:visibility="invisible">
+        android:elevation="4dp">
 
-        <ImageView
-            android:id="@+id/lightButton"
-            android:layout_marginLeft="8dp"
-            android:layout_width="125dp"
-            android:layout_height="125dp"
-            android:layout_marginRight="25dp"
-            android:layout_gravity="left|center_vertical"
-            android:background="@drawable/ic_profile_moaaz"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginLeft="8dp">
+            <ImageView
+                android:id="@+id/lightButton"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:layout_gravity="center"
+                android:background="@drawable/ic_profile_moaaz"/>
+
+            <TextView
+                android:id="@+id/name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"
+                android:text="Moaaz Maamoon"/>
+
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="16dp"
+            android:paddingTop="16dp"
+            android:layout_marginLeft="24dp"
             android:orientation="vertical"
             android:gravity="center_horizontal">
 
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="12.5dp"
-                    android:text="Moaaz Maamoon"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -269,20 +282,28 @@
                     android:src="@drawable/ic_username"/>
 
                 <TextView
+                    android:id="@+id/username_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Mcubed_123"
                     android:layout_gravity="center"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
                     android:gravity="center"/>
 
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.25dp"
+                android:background="@android:color/darker_gray"/>
 
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -291,46 +312,49 @@
                     android:src="@drawable/ic_email"/>
 
                 <TextView
+                    android:id="@+id/email_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="moaaz.ali95@gmail.com"
+                    android:text="moaazali95@gmail.com"
                     android:gravity="center"
+                    android:textSize="18sp"
+                    android:textColor="@android:color/black"
                     android:layout_gravity="center" />
 
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.25dp"
+                android:background="@android:color/darker_gray"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
                 android:orientation="horizontal"
                 android:gravity="center">
 
                 <ImageView
                     android:id="@+id/pattern"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginLeft="8dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:src="@drawable/ic_pattern"/>
 
                 <ImageView
                     android:id="@+id/deleteHistory"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginLeft="8dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="16dp"
                     android:src="@drawable/ic_delete"/>
 
                 <ImageView
                     android:id="@+id/shutdown"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginLeft="8dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="16dp"
                     android:src="@drawable/ic_shutdown"/>
-
-
-
-
 
 
             </LinearLayout>
@@ -340,6 +364,8 @@
 
 
     </LinearLayout>
+
+
 
 
 </RelativeLayout>
