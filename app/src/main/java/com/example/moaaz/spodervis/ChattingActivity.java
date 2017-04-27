@@ -731,14 +731,45 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
             @Override
             public void message(PubNub pubnub, PNMessageResult message) {
-                final String m = message.getMessage().toString().replaceAll("\\[", "").replaceAll("\\]","");
-                Log.i("Message received:", m);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        appendMessage(m);
+                if (message.getChannel().equals("door_cam"))
+                {
+                    final String m = message.getMessage().toString().replaceAll("\\[", "").replaceAll("\\]", "");
+                    Log.i("Message received:", m);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            appendMessage(m);
+                        }
+                    });
+                }
+                else
+                {
+                    String m = message.getMessage().toString().replaceAll("\\[", "").replaceAll("\\]", "");
+                    m = m.replace("\"", "");
+
+                    String[] messageEntity = m.split(",");
+                    String appendingText = "";
+                    if (messageEntity[0].equals("light"))
+                    {
+                        if(messageEntity[1].equals("1"))
+                        {
+                            appendingText = "The room is bright, sir.";
+                        }
+                        else
+                        {
+                            appendingText = "The room is dark, sir. Should I switch on the lights?";
+                        }
                     }
-                });
+                    Log.i("Entity", messageEntity[0]);
+                    final String finalAppendingText = appendingText;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            appendMessage(finalAppendingText);
+                        }
+                    });
+
+                }
 
 
             }
@@ -750,6 +781,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         });
 
         pubnub.subscribe().channels(Arrays.asList("door_cam")).execute();
+        pubnub.subscribe().channels(Arrays.asList("sensor_data")).execute();
         Log.i("Subscribed:", "Subscribed to channel door_cam");
     }
 }
