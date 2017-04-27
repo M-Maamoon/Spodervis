@@ -5,16 +5,28 @@ import pygame
 from pubnub.callbacks import SubscribeCallback
 from pubnub.enums import PNOperationType, PNStatusCategory
 import RPi.GPIO as GPIO
+import threading
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(11, GPIO.OUT)
+GPIO.setup(12, GPIO.IN)
 
 pnconfig = PNConfiguration()
 pnconfig.subscribe_key = "sub-c-6e10bdfe-1ad0-11e7-aca9-02ee2ddab7fe"
+pnconfig.publish_key = "pub-c-bcba6aa9-1ae4-4658-bfbd-ab52df9adb44"
 pnconfig.ssl = False
  
 pubnub = PubNub(pnconfig)
 
+def publish_callback(envelope, status):
+    # Check whether request successfully completed or not
+    if not status.is_error():
+        pass  # Message successfully published to specified channel.
+    else:
+        pass  # Handle message publish error. Check 'category' property to find out possible issue
+        # because of which request did fail.
+        # Request can be resent using: [status retry];
+ 
  
 class MySubscribeCallback(SubscribeCallback):
     def status(self, pubnub, status):
@@ -80,7 +92,16 @@ def playMusic():
 
 def stopMusic():
 	pygame.mixer.music.stop()
-	
-		 
+
+
+def sensorDataReader():
+    value = GPIO.input(12)
+    print value
+    pubnub.publish().channel('sensor_data').message(['light', value]).async(publish_callback)
+    threading.Timer(60, sensorDataReader).start()
+
+
+
+sensorDataReader()	 
 pubnub.add_listener(MySubscribeCallback())
 pubnub.subscribe().channels('commands').execute()
