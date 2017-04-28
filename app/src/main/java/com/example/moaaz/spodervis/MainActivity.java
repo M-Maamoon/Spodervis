@@ -24,24 +24,17 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
-
 import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
-import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
-import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
@@ -54,18 +47,18 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    PNConfiguration pnConfiguration;
-    PubNub pubnub;
-    Typeface font;
-    boolean connected = false;
-    boolean isRevealed = false;
-    private TextSwitcher mSwitcher;
-    String[] textToShow;
+    private int messageCount;
+    private int currentIndex = -1;
+    private boolean connected = false;
+    private boolean isRevealed = false;
+    private String[] textToShow;
 
-    int messageCount;
-    int currentIndex = -1;
+    private TextSwitcher mSwitcher;
     private Timer timer = new Timer();
     private TimerTask timerTask;
+    private PNConfiguration pnConfiguration;
+    private PubNub pubnub;
+    private Typeface font;
 
     public class NetworkStateReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
@@ -73,13 +66,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         initLayout();
         configurePubNub();
         setListeners();
