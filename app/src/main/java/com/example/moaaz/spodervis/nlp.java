@@ -20,9 +20,8 @@ import java.net.URLEncoder;
 public class nlp extends AsyncTask<String, Void, Void>
 {
     String value = "";
-    ChattingActivity main;
-    public nlp(ChattingActivity main) {
-        this.main = main;
+    public nlp() {
+
     }
 
 

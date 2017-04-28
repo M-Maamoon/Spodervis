@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private TimerTask timerTask;
     private PNConfiguration pnConfiguration;
     private PubNub pubnub;
-    private Typeface font;
+    public static Typeface font;
 
     public class NetworkStateReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {

@@ -308,7 +308,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void handleCommand(String command) throws ExecutionException, InterruptedException {
-        n = new nlp(this);
+        n = new nlp();
         n.execute(command).get();
         reply(n.value);
 
