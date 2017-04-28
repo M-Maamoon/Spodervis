@@ -23,7 +23,14 @@
         <activity android:name=".ChattingActivity" />
         <activity android:name=".BabyActivity" />
         <activity android:name=".StreamActivity" />
-        <activity android:name=".DoorActivity"></activity>
+        <activity android:name=".DoorActivity" />
+        <activity android:name=".AgendaActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

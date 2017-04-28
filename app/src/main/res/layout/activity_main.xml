@@ -211,6 +211,7 @@
             android:gravity="center"
             android:orientation="vertical"
             android:layout_marginLeft="8dp">
+
             <ImageView
                 android:id="@+id/lightButton"
                 android:layout_width="125dp"
@@ -306,9 +307,10 @@
                 android:gravity="center">
 
                 <ImageView
-                    android:id="@+id/pattern"
+                    android:id="@+id/pattern_icon"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:clickable="true"
                     android:src="@drawable/ic_pattern"/>
 
                 <ImageView
@@ -418,6 +420,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/secondRowLayout"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
         android:orientation="vertical">
 
         <ImageView

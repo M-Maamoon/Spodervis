@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(new NetworkStateReceiver(),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoderman);
+        Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoder_icon);
 
         Bitmap circle = RoundedImageView.getCroppedBitmap(recImage ,100);
         Drawable d = new BitmapDrawable(getResources(), circle);
@@ -228,6 +228,20 @@ public class MainActivity extends AppCompatActivity {
                                reveal();
             }
         });
+
+
+        findViewById(R.id.pattern_icon).setOnClickListener(new View.OnClickListener()
+        {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v) {
+                reveal();
+                Intent intent = new Intent(MainActivity.this, AgendaActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     public void setTextFont()
