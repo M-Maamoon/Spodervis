@@ -107,118 +107,100 @@
         android:text="Spoderbot"
         android:layout_gravity="center_horizontal"/>
 
-    <LinearLayout
-        android:id="@+id/secondRowLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+
+
+
+    <View
+        android:id="@+id/above_line"
         android:layout_below="@id/spoderbot_text"
-        android:gravity="center"
-        android:clickable="true"
-        android:onClick="startChatting">
+        android:layout_width="match_parent"
+        android:layout_height="0.25dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/darker_gray"/>
 
         <LinearLayout
-            android:id="@+id/stream"
-            android:layout_width="100dp"
-            android:layout_height="150dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/stream_icon"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/ic_cam"
-                android:background="@drawable/rounded_corner_buttons"
-                android:clickable="true"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Stream"
-                android:layout_gravity="center"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/door"
-            android:layout_width="100dp"
-            android:layout_height="150dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/door_icon"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:background="@drawable/rounded_corner_buttons"
-                android:src="@drawable/ic_door"
-                android:clickable="true"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:text="Door"/>
-
-
-
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/child"
-            android:layout_width="100dp"
-            android:layout_height="150dp"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/child_icon"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/rounded_corner_buttons"
-                android:clickable="true"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Baby"
-                android:gravity="center"
-                android:layout_gravity="center"/>
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/secondRowLayout"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/connectionIcon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_below="@id/secondRowLayout"
-            android:layout_gravity="center"/>
-
-        <TextView
-            android:id="@+id/noConnectionText"
-            android:layout_width="wrap_content"
+            android:id="@+id/reminder_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="No internet connection!"
-            android:textStyle="italic"
-            android:textSize="16sp"
-            android:textColor="@android:color/holo_red_dark"
-            android:visibility="invisible"/>
+            android:layout_below="@id/above_line"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-    </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/reminder_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:background="@drawable/rounded_corner_buttons"
+                    android:layout_gravity="center_vertical"
+                    android:clickable="true"
+                    android:src="@drawable/ic_agenda"/>
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="12dp"
+                android:layout_weight="0.9"
+                android:orientation="horizontal">
+
+                <LinearLayout
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/your_agenda"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#000000"
+                        android:textSize="20sp"
+                        android:text="Your agenda"/>
+
+                    <TextView
+                        android:id="@+id/agenda_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/darker_gray"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp"
+                        android:textStyle="italic"
+                        android:text="Wake up"/>
+
+
+                </LinearLayout>
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_alignParentRight="true"
+                    android:text="07:00AM"
+
+                    />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    <View
+        android:layout_below="@id/reminder_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0.25dp"
+        android:background="@android:color/darker_gray"/>
 
 
     <LinearLayout
@@ -365,7 +347,120 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/secondRowLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:clickable="true"
+        android:onClick="startChatting"
+        android:layout_below="@+id/reminder_layout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
 
+        <LinearLayout
+            android:id="@+id/stream"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/stream_icon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/ic_cam"
+                android:background="@drawable/rounded_corner_buttons"
+                android:clickable="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stream"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/door"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/door_icon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/rounded_corner_buttons"
+                android:src="@drawable/ic_door"
+                android:clickable="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:text="Door"/>
+
+
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/child"
+            android:layout_width="100dp"
+            android:layout_height="150dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/child_icon"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/rounded_corner_buttons"
+                android:clickable="true"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Baby"
+                android:gravity="center"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/secondRowLayout"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/connectionIcon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_below="@id/secondRowLayout"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/noConnectionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="No internet connection!"
+            android:textStyle="italic"
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="invisible"/>
+
+    </LinearLayout>
 
 
 </RelativeLayout>

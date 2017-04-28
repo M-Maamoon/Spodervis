@@ -97,6 +97,10 @@ public class MainActivity extends AppCompatActivity {
         txt.setTypeface(font);
         txt = (TextView)findViewById(R.id.name_text);
         txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.your_agenda);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.agenda_text);
+        txt.setTypeface(font);
 
         textToShow =  getResources().getStringArray(R.array.highlight);
         messageCount = textToShow.length;
