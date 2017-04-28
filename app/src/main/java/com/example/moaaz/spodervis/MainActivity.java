@@ -67,20 +67,35 @@ public class MainActivity extends AppCompatActivity {
     private Timer timer = new Timer();
     private TimerTask timerTask;
 
+    public class NetworkStateReceiver extends BroadcastReceiver {
+        public void onReceive(Context context, Intent intent) {
+            isNetworkAvailable();
+        }
+    }
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        initLayout();
         configurePubNub();
+        setListeners();
+        setTextSwitcher();
+        setTextFont();
+    }
 
+    public void initLayout()
+    {
         font = Typeface.createFromAsset(getAssets(),"fonts/HelveticaNeue-Light.ttf");
+        textToShow =  getResources().getStringArray(R.array.highlight);
+        messageCount = textToShow.length;
 
         ImageView spodermenIcon = (ImageView) findViewById(R.id.spoderbot_icon);
         spodermenIcon.setImageDrawable(new BitmapDrawable(getResources(), RoundedImageView.getCroppedBitmap(
                 BitmapFactory.decodeResource(getResources(), R.drawable.spoderman),100)));
-
 
         ImageView babySpodermenIcon = (ImageView) findViewById(R.id.child_icon);
         babySpodermenIcon.setImageDrawable(new BitmapDrawable(getResources(), RoundedImageView.getCroppedBitmap(
@@ -89,31 +104,12 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(new NetworkStateReceiver(),
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        TextView txt = (TextView)findViewById(R.id.spoderbot_text);
-        txt.setTypeface(font);
-        txt = (TextView)findViewById(R.id.username_text);
-        txt.setTypeface(font);
-        txt = (TextView)findViewById(R.id.email_text);
-        txt.setTypeface(font);
-        txt = (TextView)findViewById(R.id.name_text);
-        txt.setTypeface(font);
-        txt = (TextView)findViewById(R.id.your_agenda);
-        txt.setTypeface(font);
-        txt = (TextView)findViewById(R.id.agenda_text);
-        txt.setTypeface(font);
-
-        textToShow =  getResources().getStringArray(R.array.highlight);
-        messageCount = textToShow.length;
-
         Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoderman);
 
         Bitmap circle = RoundedImageView.getCroppedBitmap(recImage ,100);
         Drawable d = new BitmapDrawable(getResources(), circle);
         ImageView logo = (ImageView) findViewById(R.id.logo);
         logo.setImageDrawable(d);
-
-        setListeners();
-        setTextSwitcher();
     }
 
     public void setTextSwitcher()
@@ -183,9 +179,9 @@ public class MainActivity extends AppCompatActivity {
             {
                 if (connected)
                 {
-                   // findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
-                    //Intent intent = new Intent(MainActivity.this, BabyActivity.class);
-                    //startActivity(intent);
+                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+                    Intent intent = new Intent(MainActivity.this, StreamActivity.class);
+                    startActivity(intent);
 
                 }
                 else
@@ -222,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 if (connected)
                 {
                     findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
-                    Intent intent = new Intent(MainActivity.this, DoorActivity.class);
+                    Intent intent = new Intent(MainActivity.this, StreamActivity.class);
                     startActivity(intent);
                 }
                 else
@@ -243,37 +239,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-
-    public class NetworkStateReceiver extends BroadcastReceiver {
-        public void onReceive(Context context, Intent intent) {
-            isNetworkAvailable();
-        }
-    }
-
-    private void isNetworkAvailable()
+    public void setTextFont()
     {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-
-        ImageView connectionIcon = (ImageView) findViewById(R.id.connectionIcon);
-
-        if (activeNetworkInfo != null && activeNetworkInfo.isConnected())
-        {
-            connected = true;
-            connectionIcon.setVisibility(View.INVISIBLE);
-            findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
-        }
-        else
-        {
-            connected = false;
-            connectionIcon.setImageResource(R.drawable.ic_disconnected);
-            displayNotConnected();
-        }
-
+        TextView txt = (TextView)findViewById(R.id.spoderbot_text);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.username_text);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.email_text);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.name_text);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.your_agenda);
+        txt.setTypeface(font);
+        txt = (TextView)findViewById(R.id.agenda_text);
+        txt.setTypeface(font);
     }
-
 
     public void startChatting(View view)
     {
@@ -326,42 +306,29 @@ public class MainActivity extends AppCompatActivity {
         noInternetConnectionView.setVisibility(View.VISIBLE);
     }
 
-
-/*
-    public void switchLight(View view)
+    private void isNetworkAvailable()
     {
-        if (!lightOn)
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+        ImageView connectionIcon = (ImageView) findViewById(R.id.connectionIcon);
+
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnected())
         {
-            Button ls = (Button)  findViewById(R.id.switchLightButton);
-            ls.setText("Switch Off");
-            lightOn = true;
-            pubnub.publish()
-                    .message(Arrays.asList("on"))
-                    .channel("commands")
-                    .async(new PNCallback<PNPublishResult>() {
-                        @Override
-                        public void onResponse(PNPublishResult result, PNStatus status) {
-                            // handle publish result, status always present, result if successful
-                            // status.isError to see if error happened
-                        }
-                    });
-            return;
+            connected = true;
+            connectionIcon.setVisibility(View.INVISIBLE);
+            findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
         }
-        lightOn = false;
-        Button ls = (Button)  findViewById(R.id.switchLightButton);
-        ls.setText("Switch On");
-        pubnub.publish()
-                .message(Arrays.asList("off"))
-                .channel("commands")
-                .async(new PNCallback<PNPublishResult>() {
-                    @Override
-                    public void onResponse(PNPublishResult result, PNStatus status) {
-                        // handle publish result, status always present, result if successful
-                        // status.isError to see if error happened
-                    }
-                });
+        else
+        {
+            connected = false;
+            connectionIcon.setImageResource(R.drawable.ic_disconnected);
+            displayNotConnected();
+        }
+
     }
-*/
+
     public int fromDpToPixel(int dpValue)
     {
         float d = getResources().getDisplayMetrics().density;
