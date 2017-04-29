@@ -39,6 +39,8 @@ import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Timer;
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isRevealed = false;
     private String[] textToShow;
 
+    private static ArrayList<String[]> reminders = new ArrayList<String[]>();
     private TextSwitcher mSwitcher;
     private Timer timer = new Timer();
     private TimerTask timerTask;
@@ -76,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         setTextSwitcher();
         setTextFont();
+
+
     }
 
     public void initLayout()
@@ -444,4 +449,10 @@ public class MainActivity extends AppCompatActivity {
             anim.start();
         }
     }
+
+    public static ArrayList<String[]> getReminders()
+    {
+        return reminders;
+    }
+
 }

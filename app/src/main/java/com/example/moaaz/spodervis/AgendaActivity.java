@@ -22,6 +22,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +32,7 @@ import java.util.concurrent.ExecutionException;
 public class AgendaActivity extends AppCompatActivity {
 
     ProgressDialog progress;
-    ArrayList<String[]> entries = new ArrayList<String[]>();
+    ArrayList<String[]> entries;
 
     String hour = "";
     String minute = "";
@@ -41,10 +43,34 @@ public class AgendaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agenda);
+        entries = MainActivity.getReminders();
 
+        loadView();
         setListeners();
 
     }
+
+    public void loadView()
+    {
+        ArrayList<String> tmp = new ArrayList<>();
+        for (int i = 0;  i < entries.size(); i++)
+        {
+            tmp.add(entries.get(i)[0] + entries.get(i)[1] + i);
+        }
+        Collections.sort(tmp);
+
+        for (int i = 0;  i < tmp.size(); i++)
+        {
+            String[] arrTmp = entries.get(Integer.parseInt
+                    (tmp.get(i).charAt(tmp.get(i).length() - 1) + ""));
+            makeView(arrTmp[0] + ":" + arrTmp[1], arrTmp[2], i);
+        }
+
+
+
+    }
+
+
 
     public void setListeners()
     {
@@ -71,7 +97,8 @@ public class AgendaActivity extends AppCompatActivity {
                         AgendaActivity.this.hour =   selectedHour < 10?
                                 "0" + selectedHour + "": selectedHour + "";
 
-                        AgendaActivity.this.minute = selectedMinute + "";
+                        AgendaActivity.this.minute =   selectedMinute < 10?
+                                "0" + selectedMinute + "": selectedMinute + "";
 
                         popUpTitleDialog();
                         Log.i(AgendaActivity.this.hour,  AgendaActivity.this.minute);
