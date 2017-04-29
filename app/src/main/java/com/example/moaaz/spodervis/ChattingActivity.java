@@ -739,7 +739,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                         public void run() {
                             appendMessage(m);
                         }
-                    });
+                    }); //Killing main UI thread and saving it from the pain of existence
                 }
                 else
                 {

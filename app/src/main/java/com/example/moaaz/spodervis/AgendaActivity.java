@@ -4,11 +4,9 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
@@ -24,29 +22,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 
 public class AgendaActivity extends AppCompatActivity {
 
     ProgressDialog progress;
+    ArrayList<String[]> entries = new ArrayList<String[]>();
+
+    String hour = "";
+    String minute = "";
+    String title = "";
+    String command = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agenda);
-
-        ViewGroup insertPoint = (ViewGroup) findViewById(R.id.remindersLayout);
-
-        insertPoint.addView(makeView("6:00", "Wake up"), 0, new
-                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        insertPoint.addView(makeView("6:30", "Coffee"), 1, new
-                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-
 
         setListeners();
 
@@ -60,6 +54,11 @@ public class AgendaActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
+                AgendaActivity.this.hour = "";
+                AgendaActivity.this.minute = "";
+                AgendaActivity.this.title = "";
+                AgendaActivity.this.command = "";
+
                 Calendar mcurrentTime = Calendar.getInstance();
                 int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mcurrentTime.get(Calendar.MINUTE);
@@ -69,11 +68,16 @@ public class AgendaActivity extends AppCompatActivity {
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
 
                         Log.i("Time:", selectedHour + " : " + selectedMinute);
+                        AgendaActivity.this.hour =   selectedHour < 10?
+                                "0" + selectedHour + "": selectedHour + "";
+
+                        AgendaActivity.this.minute = selectedMinute + "";
 
                         popUpTitleDialog();
+                        Log.i(AgendaActivity.this.hour,  AgendaActivity.this.minute);
 
                     }
-                }, hour, minute, false);
+                }, hour, minute, true);
                 mTimePicker.setTitle("Select Time");
                 mTimePicker.show();
 
@@ -85,9 +89,7 @@ public class AgendaActivity extends AppCompatActivity {
     public void popUpTitleDialog()
     {
 
-
-
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("Set command");
 
         LinearLayout layout = new LinearLayout(this);
@@ -96,7 +98,6 @@ public class AgendaActivity extends AppCompatActivity {
         LinearLayout.LayoutParams lp_1 = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
-
 
         layout.setPadding(16, 0, 16, 0);
 
@@ -169,8 +170,8 @@ public class AgendaActivity extends AppCompatActivity {
                 Log.i("Title:", titleInput.getText().toString());
                 Log.i("Command:", commandInput.getText().toString());
 
-
-                if(!commandInput.getText().toString().equals("")) {
+                if(!commandInput.getText().toString().equals(""))
+                {
 
                     final nlp n = new nlp();
                     progress = ProgressDialog.show(AgendaActivity.this, "Executing",
@@ -191,8 +192,16 @@ public class AgendaActivity extends AppCompatActivity {
                                     }
                                     else
                                     {
+                                        AgendaActivity.this.title = titleInput.getText().toString();
+                                        AgendaActivity.this.command = commandInput.getText().toString();
+
+                                        AgendaActivity.this.addEntry();
+
+                                        Toast.makeText(AgendaActivity.this, "Your command is registered",
+                                                Toast.LENGTH_SHORT).show();
                                         progress.dismiss();
                                         dialog.dismiss();
+
                                     }
 
 
@@ -204,14 +213,31 @@ public class AgendaActivity extends AppCompatActivity {
                         }
                     }, 500);
 
-
-
                 }
             }
         });
+
+
     }
 
-    public View makeView(String time, String reminder)
+    public void addEntry()
+    {
+        String[] entry = {hour, minute, title, command};
+
+        entries.add(entry);
+        ArrayList<String> tmp = new ArrayList<>();
+        String newEntryString = hour + minute;
+        for (int i = 0;  i < entries.size(); i++)
+        {
+            tmp.add(entries.get(i)[0] + entries.get(i)[1]);
+        }
+        Collections.sort(tmp);
+
+        makeView(hour + ":" + minute, title, tmp.indexOf(newEntryString));
+
+    }
+
+    public View makeView(String time, String reminder, int index)
     {
         LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = vi.inflate(R.layout.reminder_view, null);
@@ -223,6 +249,12 @@ public class AgendaActivity extends AppCompatActivity {
         textView.setText(reminder);
         textView.setTypeface(MainActivity.font);
 
+        ViewGroup insertPoint = (ViewGroup) findViewById(R.id.remindersLayout);
+
+        insertPoint.addView(v, index, new
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
         return v;
     }
 
@@ -233,23 +265,6 @@ public class AgendaActivity extends AppCompatActivity {
         return (int)(dpValue * d);
     }
 
-
-
-    public boolean checkCommand(String command) throws ExecutionException, InterruptedException {
-
-
-        Log.i("LFMA","LFAL");
-        nlp n = new nlp();
-        n.execute(command).get();
-        Log.i("FINISHED","JRE");
-        if (n.value.equals("null"))
-        {
-            progress.dismiss();
-            return false;
-        }
-        progress.dismiss();
-        return true;
-    }
 
 
 }
