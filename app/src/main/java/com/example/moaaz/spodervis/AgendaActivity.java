@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -35,6 +36,7 @@ import com.example.moaaz.spodervis.utils.PatternEntry;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.concurrent.ExecutionException;
 
 
@@ -43,6 +45,8 @@ public class AgendaActivity extends AppCompatActivity {
     ProgressDialog progress;
     ArrayList<String[]> entries;
     ArrayList<PatternEntry> patternEntries;
+    Hashtable<Integer, PatternEntry> patternIdsTable =  new Hashtable<>();
+    Hashtable<Integer, Intent> intents = new Hashtable<>();
     private AlarmManager alarmMgr;
     private PendingIntent alarmPendingIntent;
 
@@ -64,30 +68,15 @@ public class AgendaActivity extends AppCompatActivity {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void loadView()
     {
-
-
         for (int i = 0; i < patternEntries.size(); i++)
         {
             PatternEntry p = patternEntries.get(i);
-            makeView(p.getHour() + ":" + p.getMinute(), p.getTitle(), i);
+            addAlarm(p);
+            makeView(p, p.getHour() + ":" + p.getMinute(), p.getTitle(), i);
         }
-     /*   ArrayList<String> tmp = new ArrayList<>();
-        for (int i = 0;  i < entries.size(); i++)
-        {
-            tmp.add(entries.get(i)[0] + entries.get(i)[1] + i);
-        }
-        Collections.sort(tmp);
-
-        for (int i = 0;  i < tmp.size(); i++)
-        {
-            String[] arrTmp = entries.get(Integer.parseInt
-                    (tmp.get(i).charAt(tmp.get(i).length() - 1) + ""));
-            makeView(arrTmp[0] + ":" + arrTmp[1], arrTmp[2], i);
-        }*/
-
-
 
     }
 
@@ -265,73 +254,64 @@ public class AgendaActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void addAlarm(PatternEntry entry)
     {
-       // Long alert = new GregorianCalendar().getTimeInMillis()+5*1000;
-        Intent alertIntent = new Intent(this, AlertReceiver.class);
-        alertIntent.putExtra("command", this.command);
-        alertIntent.putExtra("title", this.title);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(this.hour));
-        calendar.set(Calendar.MINUTE, Integer.parseInt(this.minute));
-
-        long diff = Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis();
-        Log.i("Calendar", calendar.toString());
-        if (diff > 0)
+        if (entry.isActivated())
         {
-            calendar.add(Calendar.DATE, 1);
-            Log.i("Calendar_1", calendar.toString());
+            Intent alertIntent = new Intent(this, AlertReceiver.class);
+            intents.put(entry.getId(), alertIntent);
+            alertIntent.putExtra("command", entry.getCommand());
+            alertIntent.putExtra("title", entry.getTitle());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(entry.getHour()));
+            calendar.set(Calendar.MINUTE, Integer.parseInt(entry.getMinute()));
+
+            long diff = Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis();
+            Log.i("Calendar", calendar.toString());
+            if (diff > 0) {
+                calendar.add(Calendar.DATE, 1);
+                Log.i("Calendar_1", calendar.toString());
+            }
+
+            AlarmManager m = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 1, alertIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            Log.i("Set to hour", entry.getHour());
+            Log.i("Set to minute", entry.getMinute());
+            m.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    AlarmManager.INTERVAL_DAY, alarmPendingIntent);
+
         }
-
-        AlarmManager m = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 1, alertIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        Log.i("Set to hour", this.hour);
-        Log.i("Set to minute", this.minute);
-        m.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, alarmPendingIntent);
-
-        entry.setAlarmIntent(alarmPendingIntent);
-
-
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public PatternEntry addEntry()
     {
-        //String[] entry = {hour, minute, title, command};
+
         PatternEntry p = new PatternEntry(title, command, hour, minute);
         patternEntries.add(p);
         Collections.sort(patternEntries);
-        makeView(hour + ":" + minute, title, patternEntries.indexOf(p));
+        makeView(p, hour + ":" + minute, title, patternEntries.indexOf(p));
         for (int i = 0; i < patternEntries.size(); i++)
              Log.i("Entries", patternEntries.get(i).toString());
 
         return p;
-
-        /*
-        entries.add(entry);
-        ArrayList<String> tmp = new ArrayList<>();
-        String newEntryString = hour + minute;
-        for (int i = 0;  i < entries.size(); i++)
-        {
-            tmp.add(entries.get(i)[0] + entries.get(i)[1]);
-        }
-        Collections.sort(tmp);
-
-      */
 
     }
 
     public void cancelEntry(PatternEntry p)
     {
         AlarmManager m = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        m.cancel(p.getAlarmIntent());
+        Intent i = intents.get(p.getId());
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 1, i,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        m.cancel(alarmPendingIntent);
     }
 
-    public View makeView(String time, String reminder, int index)
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public View makeView(PatternEntry p, String time, String reminder, int index)
     {
-        LayoutInflater vi = (LayoutInflater) getApplicationContext().
-                getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = vi.inflate(R.layout.reminder_view, null);
+        View v = LayoutInflater.from(this).inflate(R.layout.reminder_view, null);
 
         TextView textView = (TextView) v.findViewById(R.id.reminderText);
         TextView timeView = (TextView) v.findViewById(R.id.timetText);
@@ -339,6 +319,19 @@ public class AgendaActivity extends AppCompatActivity {
         timeView.setText(time);
         textView.setText(reminder);
         textView.setTypeface(MainActivity.font);
+        int id = View.generateViewId();
+        Switch s = (Switch) v.findViewById(R.id.switchButton);
+        s.setId(id);
+       // v.setId(id);
+        p.setId(id);
+        patternIdsTable.put(id, p);
+        Log.i("Set id", id + "");
+        Log.i("S id", s.getId() + "");
+
+        if (!p.isActivated())
+        {
+            s.setChecked(false);
+        }
 
         ViewGroup insertPoint = (ViewGroup) findViewById(R.id.remindersLayout);
 
@@ -347,6 +340,29 @@ public class AgendaActivity extends AppCompatActivity {
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
         return v;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void toggleEntry(View view)
+    {
+        Switch s = (Switch) view;
+        View v = (View) s.getParent();
+        int entryId = s.getId();
+        Log.i("Parent", v.toString());
+        PatternEntry entry = patternIdsTable.get(entryId);
+
+        Log.i("ID:", entryId  + "");
+        Log.i("Entry:", entry.getTitle());
+        if (!s.isChecked())
+        {
+            cancelEntry(entry);
+            entry.setActivated(false);
+        }
+        else
+        {
+            addAlarm(entry);
+            entry.setActivated(true);
+        }
     }
 
 

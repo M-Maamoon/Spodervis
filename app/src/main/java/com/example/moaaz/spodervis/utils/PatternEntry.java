@@ -17,15 +17,24 @@ public class PatternEntry implements Comparable<PatternEntry>, Serializable {
 
     private boolean isActivated;
     private int timeStamp;
+    private int id;
     private String title;
     private String command;
     private String hour;
     private String minute;
 
-    private PendingIntent alarmIntent;
 
     public boolean isActivated() {
         return isActivated;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId()
+    {
+        return id;
     }
 
     public int getTimeStamp() {
@@ -48,14 +57,7 @@ public class PatternEntry implements Comparable<PatternEntry>, Serializable {
         return minute;
     }
 
-    public PendingIntent getAlarmIntent() {
-        return alarmIntent;
-    }
 
-    public void setAlarmIntent(PendingIntent i)
-    {
-        this.alarmIntent = i;
-    }
 
     public void setActivated(boolean a)
     {
@@ -69,7 +71,7 @@ public class PatternEntry implements Comparable<PatternEntry>, Serializable {
         this.hour = h;
         this.minute = m;
 
-        this.isActivated = false;
+        this.isActivated = true;
         this.timeStamp = Integer.parseInt(hour + minute);
     }
 
