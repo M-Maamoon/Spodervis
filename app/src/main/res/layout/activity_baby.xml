@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_baby"
     android:layout_width="match_parent"
@@ -8,6 +8,26 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     tools:context="com.example.moaaz.spodervis.BabyActivity">
+<Button
+    android:id="@+id/show"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:text="Show Notification"
+    android:onClick="showNotification"/>
 
-</RelativeLayout>
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Stop Notification"
+        android:onClick="hideNotification"/>
+
+    <Button
+        android:id="@+id/five"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Show Notification After 5 Minute"
+        android:onClick="showNotificationDelay"/>
+</LinearLayout>

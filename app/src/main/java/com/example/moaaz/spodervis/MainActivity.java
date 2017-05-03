@@ -31,7 +31,9 @@ import android.widget.LinearLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
+
 import com.example.moaaz.spodervis.utils.RoundedImageView;
+import com.example.moaaz.spodervis.utils.pubnubService;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
 import com.pubnub.api.callbacks.SubscribeCallback;
@@ -55,13 +57,16 @@ public class MainActivity extends AppCompatActivity {
     private boolean isRevealed = false;
     private String[] textToShow;
 
+
     private static ArrayList<String[]> reminders = new ArrayList<String[]>();
     private TextSwitcher mSwitcher;
     private Timer timer = new Timer();
     private TimerTask timerTask;
     private PNConfiguration pnConfiguration;
     private PubNub pubnub;
+    private BroadcastReceiver networkReceiver = new NetworkStateReceiver();
     public static Typeface font;
+
 
     public class NetworkStateReceiver extends BroadcastReceiver {
         public void onReceive(Context context, Intent intent) {
@@ -79,7 +84,20 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         setTextSwitcher();
         setTextFont();
+        if (!pubnubService.state)
+        {
+            Log.i("Service Open", "SERVICEEEE");
+            Intent intent = new Intent(this, pubnubService.class);
+            startService(intent);
+        }
 
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+        unregisterReceiver(networkReceiver);
 
     }
 
@@ -97,7 +115,9 @@ public class MainActivity extends AppCompatActivity {
         babySpodermenIcon.setImageDrawable(new BitmapDrawable(getResources(), RoundedImageView.getCroppedBitmap(
                 BitmapFactory.decodeResource(getResources(), R.drawable.baby_spodermen),100)));
 
-        registerReceiver(new NetworkStateReceiver(),
+
+
+        registerReceiver(networkReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         Bitmap recImage = BitmapFactory.decodeResource(getResources(), R.drawable.spoder_icon);
@@ -106,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
         Drawable d = new BitmapDrawable(getResources(), circle);
         ImageView logo = (ImageView) findViewById(R.id.logo);
         logo.setImageDrawable(d);
+
+
     }
 
     public void setTextSwitcher()
@@ -176,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                 if (connected)
                 {
                     findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
-                    Intent intent = new Intent(MainActivity.this, StreamActivity.class);
+                    Intent intent = new Intent(MainActivity.this, BabyActivity.class);
                     startActivity(intent);
 
                 }

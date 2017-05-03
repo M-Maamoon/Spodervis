@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,7 +28,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.lang.reflect.Array;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -37,6 +38,8 @@ public class AgendaActivity extends AppCompatActivity {
 
     ProgressDialog progress;
     ArrayList<String[]> entries;
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmPendingIntent;
 
     String hour = "";
     String minute = "";
@@ -53,9 +56,8 @@ public class AgendaActivity extends AppCompatActivity {
         loadView();
         setListeners();
 
-        scheduleVerseNotificationService(this);
-
     }
+
 
     public void loadView()
     {
@@ -299,30 +301,7 @@ public class AgendaActivity extends AppCompatActivity {
         return (int)(dpValue * d);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public static void scheduleVerseNotificationService(Context mContext) {
-        AlarmManager alarmManager = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(mContext, Notification.class);
-        PendingIntent pendingIntent = PendingIntent.getService(mContext, 0, intent, 0);
 
-        // reset previous pending intent
-        alarmManager.cancel(pendingIntent);
-
-        // Set the alarm to start at approximately 08:00 morning.
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 3);
-        calendar.set(Calendar.MINUTE, 43);
-        calendar.set(Calendar.SECOND, 0);
-
-        // if the scheduler date is passed, move scheduler time to tomorrow
-        if (System.currentTimeMillis() > calendar.getTimeInMillis()) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
-        }
-
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, pendingIntent);
-    }
 
 
 
