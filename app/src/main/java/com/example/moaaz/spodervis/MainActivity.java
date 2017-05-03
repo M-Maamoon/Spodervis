@@ -2,10 +2,12 @@ package com.example.moaaz.spodervis;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -32,6 +34,7 @@ import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.example.moaaz.spodervis.utils.ChattingMessage;
 import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.example.moaaz.spodervis.utils.pubnubService;
 import com.pubnub.api.PNConfiguration;
@@ -41,9 +44,17 @@ import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -57,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isRevealed = false;
     private String[] textToShow;
 
-
+    private static ArrayList<ChattingMessage> chatMessages;
     private static ArrayList<String[]> reminders = new ArrayList<String[]>();
     private TextSwitcher mSwitcher;
     private Timer timer = new Timer();
@@ -84,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
         setListeners();
         setTextSwitcher();
         setTextFont();
+
+        chatMessages = (ArrayList<ChattingMessage>) readObjectFromFile(this, "ChatMessages");
+
         if (!pubnubService.state)
         {
             Log.i("Service Open", "SERVICEEEE");
@@ -91,15 +105,100 @@ public class MainActivity extends AppCompatActivity {
             startService(intent);
         }
 
+
+
     }
+
 
     @Override
     protected void onDestroy()
     {
         super.onDestroy();
         unregisterReceiver(networkReceiver);
+        for (int i = 0; i < chatMessages.size(); i++)
+        {
+            Log.i("Entry " + i, chatMessages.get(i).toString());
+        }
+        Collections.sort(chatMessages);
+
+        for (int i = 0; i < chatMessages.size(); i++)
+        {
+            Log.i("Entry " + i, chatMessages.get(i).toString());
+        }
+
+
+        writeObjectToFile(this, chatMessages, "ChatMessages");
 
     }
+
+    public void writeObjectToFile(Context context,  ArrayList<ChattingMessage>  object, String filename) {
+
+        ObjectOutputStream objectOut = null;
+        try {
+
+            FileOutputStream fileOut = context.openFileOutput(filename, Activity.MODE_PRIVATE);
+            objectOut = new ObjectOutputStream(fileOut);
+            objectOut.writeObject(object);
+            fileOut.getFD().sync();
+            Log.i("Write", "Wrote file new arraylist");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (objectOut != null) {
+                try {
+                    objectOut.close();
+                } catch (IOException e) {
+                    // do nowt
+                }
+            }
+        }
+    }
+
+    public static Object readObjectFromFile(Context context, String filename) {
+
+        ObjectInputStream objectIn = null;
+        Object object = null;
+        try
+        {
+
+            FileInputStream fileIn = context.getApplicationContext().openFileInput(filename);
+            objectIn = new ObjectInputStream(fileIn);
+            object = objectIn.readObject();
+            Log.i("Read: ", "Success");
+
+        }
+        catch (FileNotFoundException e)
+        {
+            Log.i("Read: Not found", "Created new arraylist");
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+        catch (IOException e)
+        {
+            Log.i("Read: IO", "Created new arraylist");
+            e.printStackTrace();
+            return new ArrayList<>();
+
+        }
+        catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            if (objectIn != null) {
+                try {
+                    objectIn.close();
+                } catch (IOException e) {
+                    // do nowt
+                }
+            }
+        }
+
+        return object;
+    }
+
 
     public void initLayout()
     {
@@ -197,9 +296,15 @@ public class MainActivity extends AppCompatActivity {
             {
                 if (connected)
                 {
-                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
+                   /* findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
                     Intent intent = new Intent(MainActivity.this, BabyActivity.class);
-                    startActivity(intent);
+                    startActivity(intent);*/
+
+                    for (int i = 0; i < chatMessages.size(); i++)
+                    {
+                        ChattingMessage m = chatMessages.get(i);
+                        Log.i("Message: ", m.toString());
+                    }
 
                 }
                 else
@@ -476,5 +581,11 @@ public class MainActivity extends AppCompatActivity {
     {
         return reminders;
     }
+
+    public static ArrayList<ChattingMessage> getChatMessages()
+    {
+        return chatMessages;
+    }
+
 
 }

@@ -35,10 +35,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.text.TextWatcher;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import com.example.moaaz.spodervis.utils.ChattingMessage;
 import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
@@ -69,6 +72,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     boolean listening = false;
     boolean isRevealed = false;
     boolean connected = false;
+    ArrayList<ChattingMessage> chatMessages;
     Hashtable<String, Boolean> state = new Hashtable<String, Boolean>();
     String[][] messages = new String[5][];
     PNConfiguration pnConfiguration;
@@ -76,6 +80,8 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     TextToSpeech speaker;
     MediaPlayer messageEffect;
 
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -101,6 +107,57 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             }
         }, 100);
 
+        chatMessages = MainActivity.getChatMessages();
+        retrieveMessages();
+        setListeners();
+        buttonBackgroundChanger();
+        initMessageArrays();
+        initState();
+        speaker = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                speaker.setLanguage(Locale.US);
+            }
+        });
+
+        messageEffect = MediaPlayer.create(this, R.raw.message_effect);
+        speech = SpeechRecognizer.createSpeechRecognizer(this);
+        speech.setRecognitionListener(this);
+
+        configurePubNub();
+
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void retrieveMessages()
+    {
+        for (int i = 0; i < chatMessages.size(); i++)
+        {
+            ChattingMessage m = chatMessages.get(i);
+
+            if (m.sentByUser())
+            {
+                appendSentMessage(m.getContent(), false);
+            }
+            else
+            {
+                appendReplyMessage(m.getContent(), false);
+            }
+        }
+
+        scroll.post(new Runnable() {
+
+            @Override
+            public void run() {
+                scroll.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
+    }
+
+    public void setListeners()
+    {
         messageTextField.setOnTouchListener(new View.OnTouchListener()
         {
 
@@ -142,23 +199,29 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
         });
 
+        final ImageButton lightButton = (ImageButton) findViewById(R.id.lightButton);
+        lightButton.setOnClickListener(new View.OnClickListener() {
 
-
-        buttonBackgroundChanger();
-        initMessageArrays();
-        initState();
-        speaker = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
-            public void onInit(int status) {
-                speaker.setLanguage(Locale.US);
+            public void onClick(View v)
+            {
+                for (int i = 0; i < chatMessages.size(); i++)
+                {
+                    ChattingMessage m = chatMessages.get(i);
+                    Log.i("Message: ", m.toString());
+                }
             }
+
         });
 
-        messageEffect = MediaPlayer.create(this, R.raw.message_effect);
-        speech = SpeechRecognizer.createSpeechRecognizer(this);
-        speech.setRecognitionListener(this);
 
-        configurePubNub();
+    }
+
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
     }
 
     public void initState()
@@ -248,30 +311,10 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         final String stringMessage = messageTextField.getText().toString();
         if (!stringMessage.equals(""))
         {
+            ChattingMessage messageObject = new ChattingMessage(stringMessage, true);
+            this.chatMessages.add(messageObject);
 
-            TextView message = new TextView(this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
-                    (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(fromDpToPixel(72), 0, fromDpToPixel(8), fromDpToPixel(8));
-            lp.gravity = Gravity.RIGHT;
-
-            message.setTextColor(Color.rgb(255, 255, 255));
-            message.setBackgroundResource(R.drawable.user_text_bubble);
-            message.setLayoutParams(lp);
-            message.setText(stringMessage);
-            message.setTextSize(16);
-            message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
-            LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
-            messageArea.addView(message, messageArea.getChildCount() - 1);
-            messageTextField.setText("");
-            scroll.post(new Runnable() {
-
-                @Override
-                public void run() {
-                    scroll.fullScroll(ScrollView.FOCUS_DOWN);
-                }
-            });
-            messageEffect.start();
+            appendSentMessage(stringMessage, true);
 
             Thread thread = new Thread() {
                 @Override
@@ -303,6 +346,75 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             messageTextField.setCursorVisible(false);
             messageTextField.setHint("Listening ... ");
         }
+    }
+
+    public void appendSentMessage(String m, boolean withSound)
+    {
+        TextView message = new TextView(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
+                (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(fromDpToPixel(72), 0, fromDpToPixel(8), fromDpToPixel(8));
+        lp.gravity = Gravity.RIGHT;
+
+        message.setTextColor(Color.rgb(255, 255, 255));
+        message.setBackgroundResource(R.drawable.user_text_bubble);
+        message.setLayoutParams(lp);
+        message.setText(m);
+        message.setTextSize(16);
+        message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
+        LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
+        messageArea.addView(message, messageArea.getChildCount() - 1);
+
+        if (withSound)
+        {
+            messageEffect.start();
+            messageTextField.setText("");
+            scroll.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    scroll.fullScroll(ScrollView.FOCUS_DOWN);
+                }
+            });
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void appendReplyMessage(String m, boolean speech)
+    {
+        TextView message = new TextView(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
+                (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(fromDpToPixel(8), 0, fromDpToPixel(72), fromDpToPixel(8));
+        lp.gravity = Gravity.START;
+
+        message.setTextColor(Color.rgb(255, 255, 255));
+        message.setBackgroundResource(R.drawable.spodervis_text_bubble);
+        message.setLayoutParams(lp);
+        message.setTextSize(16);
+        message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
+        LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
+        messageArea.addView(message, messageArea.getChildCount() - 1);
+
+
+        message.setText(m);
+        if (speech)
+        {
+            if (m.contains("_"))
+                speaker.speak("This is meaningless to me, Sir!", TextToSpeech.QUEUE_FLUSH, null, null);
+            else
+                speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+
+
+        scroll.post(new Runnable() {
+
+            @Override
+            public void run() {
+                scroll.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
+
     }
 
 
@@ -360,89 +472,19 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void reply(String response)
     {
-     /*   TextView message = new TextView(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
-                (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(fromDpToPixel(8), 0, fromDpToPixel(72), fromDpToPixel(8));
-        lp.gravity = Gravity.LEFT;
 
-        message.setTextColor(Color.rgb(255, 255, 255));
-        message.setBackgroundResource(R.drawable.spodervis_text_bubble);
-        message.setLayoutParams(lp);
-        message.setTextSize(16);
-        message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
-        LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
-        messageArea.addView(message, messageArea.getChildCount() - 1);
-        String r = makeReply(response);
-
-        message.setText(r);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (r.contains("_"))
-                speaker.speak("This is meaningless to me, Sir!",TextToSpeech.QUEUE_FLUSH,null,null);
-            else
-                speaker.speak(r, TextToSpeech.QUEUE_FLUSH, null, null);
-        }
-        else
-        {
-            if (r.contains("_"))
-                speaker.speak("This is meaningless to me, Sir!", TextToSpeech.QUEUE_FLUSH, null);
-            else
-                speaker.speak(r, TextToSpeech.QUEUE_FLUSH, null);
-
-        }
-        scroll.post(new Runnable() {
-
-            @Override
-            public void run() {
-                scroll.fullScroll(ScrollView.FOCUS_DOWN);
-            }
-        });
-*/
         final String r = makeReply(response);
+        ChattingMessage replyObject = new ChattingMessage(r, false);
+        chatMessages.add(replyObject);
         runOnUiThread(new Runnable() {
            @Override
            public void run() {
-               appendMessage(r);
+               appendReplyMessage(r, true);
            }
         });
 
     }
 
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void appendMessage(String m)
-    {
-        TextView message = new TextView(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams
-                (LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(fromDpToPixel(8), 0, fromDpToPixel(72), fromDpToPixel(8));
-        lp.gravity = Gravity.START;
-
-        message.setTextColor(Color.rgb(255, 255, 255));
-        message.setBackgroundResource(R.drawable.spodervis_text_bubble);
-        message.setLayoutParams(lp);
-        message.setTextSize(16);
-        message.setPadding(fromDpToPixel(16), fromDpToPixel(8), fromDpToPixel(16), fromDpToPixel(8));
-        LinearLayout messageArea = (LinearLayout) findViewById(R.id.messagesArea);
-        messageArea.addView(message, messageArea.getChildCount() - 1);
-
-
-        message.setText(m);
-        if (m.contains("_"))
-            speaker.speak("This is meaningless to me, Sir!",TextToSpeech.QUEUE_FLUSH,null,null);
-        else
-            speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null, null);
-
-
-        scroll.post(new Runnable() {
-
-            @Override
-            public void run() {
-                scroll.fullScroll(ScrollView.FOCUS_DOWN);
-            }
-        });
-
-    }
 
     public String makeReply(String response)
     {
@@ -544,8 +586,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             anim.start();
         }
     }
-
-
 
 
     //Button Animation
@@ -737,7 +777,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                         @Override
                         public void run() {
-                            appendMessage(m);
+                            appendReplyMessage(m, true);
                         }
                     }); //Killing main UI thread and saving it from the pain of existence
                 }
@@ -765,7 +805,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                         @Override
                         public void run() {
-                            appendMessage(finalAppendingText);
+                            appendReplyMessage(finalAppendingText, true);
                         }
                     });
 
