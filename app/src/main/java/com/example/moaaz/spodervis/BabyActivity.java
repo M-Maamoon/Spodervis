@@ -45,15 +45,6 @@ public class BabyActivity extends AppCompatActivity {
         notificBuilder.setTicker("ticker lmfao");
         notificBuilder.setSmallIcon(R.drawable.ic_add);
 
-        TaskStackBuilder t = TaskStackBuilder.create(this);
-
-        Intent moreInfoIntent = new Intent(this, MoreInfoNotification.class);
-        t.addParentStack(MoreInfoNotification.class);
-        t.addNextIntent(moreInfoIntent);
-
-        PendingIntent p = t.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        notificBuilder.setContentIntent(p);
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(id, notificBuilder.build());
         isActive = true;
@@ -65,6 +56,7 @@ public class BabyActivity extends AppCompatActivity {
     {
         Long alert = new GregorianCalendar().getTimeInMillis()+5*1000;
         Intent alertIntent = new Intent(this, AlertReceiver.class);
+        alertIntent.putExtra("command", "lel");
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 14);

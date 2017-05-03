@@ -345,7 +345,16 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     public void sendCommand(String command)
     {
 
-
+        pubnub.publish()
+                .message(Arrays.asList(command))
+                .channel("commands")
+                .async(new PNCallback<PNPublishResult>() {
+                    @Override
+                    public void onResponse(PNPublishResult result, PNStatus status) {
+                        // handle publish result, status always present, result if successful
+                        // status.isError to see if error happened
+                    }
+                });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -772,11 +781,5 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         pubnub.subscribe().channels(Arrays.asList("door_cam")).execute();
         pubnub.subscribe().channels(Arrays.asList("sensor_data")).execute();
         Log.i("Subscribed:", "Subscribed to channel door_cam");
-    }
-
-
-    public void openDoor()
-    {
-        Log.i("Opening", "the Door");
     }
 }

@@ -32,7 +32,7 @@ import java.util.Arrays;
 
 public class pubnubService extends Service {
     private PNConfiguration pnConfiguration;
-    private PubNub pubnub;
+    public static PubNub pubnub;
     BroadcastReceiver receiver;
     public static boolean state = false;
 

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.icu.util.Calendar;
+import android.icu.util.GregorianCalendar;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
@@ -28,6 +29,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+
+import com.example.moaaz.spodervis.utils.AlertReceiver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +61,6 @@ public class AgendaActivity extends AppCompatActivity {
 
     }
 
-
     public void loadView()
     {
         ArrayList<String> tmp = new ArrayList<>();
@@ -78,8 +80,6 @@ public class AgendaActivity extends AppCompatActivity {
 
 
     }
-
-
 
     public void setListeners()
     {
@@ -215,6 +215,7 @@ public class AgendaActivity extends AppCompatActivity {
 
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
+                        @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
                         public void run() {
 
@@ -232,6 +233,7 @@ public class AgendaActivity extends AppCompatActivity {
                                         AgendaActivity.this.command = commandInput.getText().toString();
 
                                         AgendaActivity.this.addEntry();
+                                        AgendaActivity.this.addAlarm();
 
                                         Toast.makeText(AgendaActivity.this, "Your command is registered",
                                                 Toast.LENGTH_SHORT).show();
@@ -253,6 +255,27 @@ public class AgendaActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void addAlarm()
+    {
+        Long alert = new GregorianCalendar().getTimeInMillis()+5*1000;
+        Intent alertIntent = new Intent(this, AlertReceiver.class);
+        alertIntent.putExtra("command", this.command);
+        alertIntent.putExtra("title", this.title);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(this.hour));
+        calendar.set(Calendar.MINUTE, Integer.parseInt(this.minute));
+        AlarmManager m = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 1, alertIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Log.i("Set to hour", this.hour);
+        Log.i("Set to minute", this.minute);
+        m.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY, alarmPendingIntent);
 
     }
 
