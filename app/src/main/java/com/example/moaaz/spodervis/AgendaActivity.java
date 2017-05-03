@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 
 import com.example.moaaz.spodervis.utils.AlertReceiver;
+import com.example.moaaz.spodervis.utils.PatternEntry;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +42,7 @@ public class AgendaActivity extends AppCompatActivity {
 
     ProgressDialog progress;
     ArrayList<String[]> entries;
+    ArrayList<PatternEntry> patternEntries;
     private AlarmManager alarmMgr;
     private PendingIntent alarmPendingIntent;
 
@@ -55,6 +57,7 @@ public class AgendaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agenda);
         entries = MainActivity.getReminders();
+        this.patternEntries = MainActivity.getPatternEntries();
 
         loadView();
         setListeners();
@@ -63,7 +66,14 @@ public class AgendaActivity extends AppCompatActivity {
 
     public void loadView()
     {
-        ArrayList<String> tmp = new ArrayList<>();
+
+
+        for (int i = 0; i < patternEntries.size(); i++)
+        {
+            PatternEntry p = patternEntries.get(i);
+            makeView(p.getHour() + ":" + p.getMinute(), p.getTitle(), i);
+        }
+     /*   ArrayList<String> tmp = new ArrayList<>();
         for (int i = 0;  i < entries.size(); i++)
         {
             tmp.add(entries.get(i)[0] + entries.get(i)[1] + i);
@@ -75,7 +85,7 @@ public class AgendaActivity extends AppCompatActivity {
             String[] arrTmp = entries.get(Integer.parseInt
                     (tmp.get(i).charAt(tmp.get(i).length() - 1) + ""));
             makeView(arrTmp[0] + ":" + arrTmp[1], arrTmp[2], i);
-        }
+        }*/
 
 
 
@@ -223,6 +233,7 @@ public class AgendaActivity extends AppCompatActivity {
                                     n.execute(commandInput.getText().toString()).get();
                                     if (n.value.equals("null"))
                                     {
+
                                         progress.dismiss();
                                         error.setVisibility(View.VISIBLE);
                                         Log.i("WRONG", "INPUT");
@@ -230,19 +241,15 @@ public class AgendaActivity extends AppCompatActivity {
                                     else
                                     {
                                         AgendaActivity.this.title = titleInput.getText().toString();
-                                        AgendaActivity.this.command = commandInput.getText().toString();
+                                        AgendaActivity.this.command = n.value;
 
-                                        AgendaActivity.this.addEntry();
-                                        AgendaActivity.this.addAlarm();
+                                        AgendaActivity.this.addAlarm(AgendaActivity.this.addEntry());
 
                                         Toast.makeText(AgendaActivity.this, "Your command is registered",
                                                 Toast.LENGTH_SHORT).show();
                                         progress.dismiss();
                                         dialog.dismiss();
-
                                     }
-
-
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             } catch (ExecutionException e) {
@@ -250,18 +257,15 @@ public class AgendaActivity extends AppCompatActivity {
                             }
                         }
                     }, 500);
-
                 }
             }
         });
-
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void addAlarm()
+    public void addAlarm(PatternEntry entry)
     {
-        Long alert = new GregorianCalendar().getTimeInMillis()+5*1000;
+       // Long alert = new GregorianCalendar().getTimeInMillis()+5*1000;
         Intent alertIntent = new Intent(this, AlertReceiver.class);
         alertIntent.putExtra("command", this.command);
         alertIntent.putExtra("title", this.title);
@@ -269,6 +273,15 @@ public class AgendaActivity extends AppCompatActivity {
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(this.hour));
         calendar.set(Calendar.MINUTE, Integer.parseInt(this.minute));
+
+        long diff = Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis();
+        Log.i("Calendar", calendar.toString());
+        if (diff > 0)
+        {
+            calendar.add(Calendar.DATE, 1);
+            Log.i("Calendar_1", calendar.toString());
+        }
+
         AlarmManager m = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 1, alertIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
@@ -277,12 +290,24 @@ public class AgendaActivity extends AppCompatActivity {
         m.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY, alarmPendingIntent);
 
+        entry.setAlarmIntent(alarmPendingIntent);
+
+
     }
 
-    public void addEntry()
+    public PatternEntry addEntry()
     {
-        String[] entry = {hour, minute, title, command};
+        //String[] entry = {hour, minute, title, command};
+        PatternEntry p = new PatternEntry(title, command, hour, minute);
+        patternEntries.add(p);
+        Collections.sort(patternEntries);
+        makeView(hour + ":" + minute, title, patternEntries.indexOf(p));
+        for (int i = 0; i < patternEntries.size(); i++)
+             Log.i("Entries", patternEntries.get(i).toString());
 
+        return p;
+
+        /*
         entries.add(entry);
         ArrayList<String> tmp = new ArrayList<>();
         String newEntryString = hour + minute;
@@ -292,13 +317,20 @@ public class AgendaActivity extends AppCompatActivity {
         }
         Collections.sort(tmp);
 
-        makeView(hour + ":" + minute, title, tmp.indexOf(newEntryString));
+      */
 
+    }
+
+    public void cancelEntry(PatternEntry p)
+    {
+        AlarmManager m = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        m.cancel(p.getAlarmIntent());
     }
 
     public View makeView(String time, String reminder, int index)
     {
-        LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater vi = (LayoutInflater) getApplicationContext().
+                getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = vi.inflate(R.layout.reminder_view, null);
 
         TextView textView = (TextView) v.findViewById(R.id.reminderText);

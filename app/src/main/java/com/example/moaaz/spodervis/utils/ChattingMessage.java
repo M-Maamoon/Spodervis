@@ -13,11 +13,11 @@ import java.util.Calendar;
 public class ChattingMessage implements Comparable<ChattingMessage>, Serializable
 {
 
-    boolean isUser;
-    long time;
-    String hour;
-    String minute;
-    String content;
+    private boolean isUser;
+    private long time;
+    private String hour;
+    private String minute;
+    private String content;
 
 
     public ChattingMessage(String content, boolean isUser)

@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.example.moaaz.spodervis.utils.ChattingMessage;
+import com.example.moaaz.spodervis.utils.PatternEntry;
 import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.example.moaaz.spodervis.utils.pubnubService;
 import com.pubnub.api.PNConfiguration;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] textToShow;
 
     private static ArrayList<ChattingMessage> chatMessages;
+    private static ArrayList<PatternEntry> patternEntries;
     private static ArrayList<String[]> reminders = new ArrayList<String[]>();
     private TextSwitcher mSwitcher;
     private Timer timer = new Timer();
@@ -97,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         setTextFont();
 
         chatMessages = (ArrayList<ChattingMessage>) readObjectFromFile(this, "ChatMessages");
+        patternEntries = (ArrayList<PatternEntry>) readObjectFromFile(this, "PatternEntries");
 
         if (!pubnubService.state)
         {
@@ -128,10 +131,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         writeObjectToFile(this, chatMessages, "ChatMessages");
+        writeObjectToFile(this, patternEntries, "PatternEntries");
 
     }
 
-    public void writeObjectToFile(Context context,  ArrayList<ChattingMessage>  object, String filename) {
+    public void writeObjectToFile(Context context,  Object object, String filename) {
 
         ObjectOutputStream objectOut = null;
         try {
@@ -140,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             objectOut = new ObjectOutputStream(fileOut);
             objectOut.writeObject(object);
             fileOut.getFD().sync();
-            Log.i("Write", "Wrote file new arraylist");
+            Log.i("Write " + filename , "Wrote file new arraylist");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -165,12 +169,12 @@ public class MainActivity extends AppCompatActivity {
             FileInputStream fileIn = context.getApplicationContext().openFileInput(filename);
             objectIn = new ObjectInputStream(fileIn);
             object = objectIn.readObject();
-            Log.i("Read: ", "Success");
+            Log.i("Read: "+ filename, "Success");
 
         }
         catch (FileNotFoundException e)
         {
-            Log.i("Read: Not found", "Created new arraylist");
+            Log.i("Read: Not found " + filename, "Created new arraylist");
             e.printStackTrace();
             return new ArrayList<>();
         }
@@ -586,6 +590,12 @@ public class MainActivity extends AppCompatActivity {
     {
         return chatMessages;
     }
+
+    public static ArrayList<PatternEntry> getPatternEntries()
+    {
+        return patternEntries;
+    }
+
 
 
 }
