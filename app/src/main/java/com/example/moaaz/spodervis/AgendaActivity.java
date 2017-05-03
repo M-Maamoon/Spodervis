@@ -101,7 +101,6 @@ public class AgendaActivity extends AppCompatActivity {
                     @Override
                     public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
 
-                        Log.i("Time:", selectedHour + " : " + selectedMinute);
                         AgendaActivity.this.hour =   selectedHour < 10?
                                 "0" + selectedHour + "": selectedHour + "";
 
@@ -109,7 +108,7 @@ public class AgendaActivity extends AppCompatActivity {
                                 "0" + selectedMinute + "": selectedMinute + "";
 
                         popUpTitleDialog();
-                        Log.i(AgendaActivity.this.hour,  AgendaActivity.this.minute);
+
 
                     }
                 }, hour, minute, true);
@@ -202,9 +201,6 @@ public class AgendaActivity extends AppCompatActivity {
             public void onClick(View v)
             {
 
-                Log.i("Title:", titleInput.getText().toString());
-                Log.i("Command:", commandInput.getText().toString());
-
                 if(!commandInput.getText().toString().equals(""))
                 {
 
@@ -225,7 +221,6 @@ public class AgendaActivity extends AppCompatActivity {
 
                                         progress.dismiss();
                                         error.setVisibility(View.VISIBLE);
-                                        Log.i("WRONG", "INPUT");
                                     }
                                     else
                                     {
@@ -266,18 +261,15 @@ public class AgendaActivity extends AppCompatActivity {
             calendar.set(Calendar.MINUTE, Integer.parseInt(entry.getMinute()));
 
             long diff = Calendar.getInstance().getTimeInMillis() - calendar.getTimeInMillis();
-            Log.i("Calendar", calendar.toString());
+
             if (diff > 0) {
                 calendar.add(Calendar.DATE, 1);
-                Log.i("Calendar_1", calendar.toString());
             }
 
             AlarmManager m = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 1, alertIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-            Log.i("Set to hour", entry.getHour());
-            Log.i("Set to minute", entry.getMinute());
             m.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                     AlarmManager.INTERVAL_DAY, alarmPendingIntent);
 
@@ -287,13 +279,10 @@ public class AgendaActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public PatternEntry addEntry()
     {
-
         PatternEntry p = new PatternEntry(title, command, hour, minute);
         patternEntries.add(p);
         Collections.sort(patternEntries);
         makeView(p, hour + ":" + minute, title, patternEntries.indexOf(p));
-        for (int i = 0; i < patternEntries.size(); i++)
-             Log.i("Entries", patternEntries.get(i).toString());
 
         return p;
 
@@ -322,11 +311,8 @@ public class AgendaActivity extends AppCompatActivity {
         int id = View.generateViewId();
         Switch s = (Switch) v.findViewById(R.id.switchButton);
         s.setId(id);
-       // v.setId(id);
         p.setId(id);
         patternIdsTable.put(id, p);
-        Log.i("Set id", id + "");
-        Log.i("S id", s.getId() + "");
 
         if (!p.isActivated())
         {
@@ -348,11 +334,9 @@ public class AgendaActivity extends AppCompatActivity {
         Switch s = (Switch) view;
         View v = (View) s.getParent();
         int entryId = s.getId();
-        Log.i("Parent", v.toString());
+
         PatternEntry entry = patternIdsTable.get(entryId);
 
-        Log.i("ID:", entryId  + "");
-        Log.i("Entry:", entry.getTitle());
         if (!s.isChecked())
         {
             cancelEntry(entry);
