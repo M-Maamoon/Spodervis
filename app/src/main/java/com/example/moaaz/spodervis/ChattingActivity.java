@@ -206,14 +206,45 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             @Override
             public void onClick(View v)
             {
-                for (int i = 0; i < chatMessages.size(); i++)
-                {
-                    ChattingMessage m = chatMessages.get(i);
-                    Log.i("Message: ", m.toString());
-                }
+                reveal();
+                if (state.get("light"))
+               executeCommand("switch_light_on");
+                else
+                    executeCommand("switch_light_off");
             }
 
         });
+
+        final ImageButton musicButton = (ImageButton) findViewById(R.id.musicButton);
+        musicButton.setOnClickListener(new View.OnClickListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v)
+            {
+                reveal();
+                if (state.get("music"))
+                    executeCommand("play_music");
+                else
+                    executeCommand("stop_music");
+            }
+
+        });
+
+        final ImageButton doorButton = (ImageButton) findViewById(R.id.unlockButton);
+        doorButton.setOnClickListener(new View.OnClickListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v)
+            {
+                    reveal();
+                    executeCommand("door_open");
+            }
+
+        });
+
+
 
 
     }
@@ -401,7 +432,10 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         if (speech)
         {
             if (m.contains("_"))
-                speaker.speak("This is meaningless to me, Sir!", TextToSpeech.QUEUE_FLUSH, null, null);
+                speaker.speak("This is meaningless to me.", TextToSpeech.QUEUE_FLUSH, null, null);
+            else if (m.contains("sommes")) {
+                speakFrench("Nous sommes toujours à votre service.");
+            }
             else
                 speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null, null);
         }
@@ -415,6 +449,14 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             }
         });
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void speakFrench(String m)
+    {
+        speaker.setLanguage(Locale.FRANCE);
+        speaker.speak(m, TextToSpeech.QUEUE_FLUSH, null, null);
+        speaker.setLanguage(Locale.US);
     }
 
 
@@ -448,6 +490,14 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                 response.equals("stop_music")) {
            command = "music_off";
         }
+        else if (response.equals("open_door"))
+        {
+            command = "open_door";
+        }
+        else if (response.equals("coffee"))
+        {
+            command = "make_coffee";
+        }
         if (!command.equals(""))
              sendCommand(command);
 
@@ -472,7 +522,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void reply(String response)
     {
-
         final String r = makeReply(response);
         ChattingMessage replyObject = new ChattingMessage(r, false);
         chatMessages.add(replyObject);
@@ -528,7 +577,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             {
                 return messages[3][(new Random().nextInt(8 - 6) + 6)];
             }
-
             state.put("music", false);
             return messages[3][(new Random().nextInt(6))];
         }
@@ -539,6 +587,37 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         else if (response.equals("question"))
         {
             return "Do you have an existential crisis, Sir?";
+        }
+        else if (response.equals("open_door"))
+        {
+            return "Opening the gate!";
+        }
+        else if (response.equals("ok"))
+        {
+            return "Okay";
+        }
+        else if (response.equals("life"))
+        {
+            return "Life is pointless";
+        }
+        else if (response.equals("hello"))
+        {
+            Random x = new Random();
+            int n = x.nextInt(8);
+            if (n == 0)  return "Oh Hi!";
+            if (n == 1)  return "What do you want?";
+            if (n == 2)  return "Hey. How are you doing today?";
+            if (n == 3)  return "What?";
+            if (n == 4)  return "Yeah?";
+            if (n == 5)  return "What?";
+            if (n == 6)  return "What?";
+            if (n == 7)  return "What do you want?";
+
+
+        }
+        else if (response.equals("thank"))
+        {
+            return "Nous sommes toujours à votre service.";
         }
         else if (response.equals("null"))
         {
@@ -586,7 +665,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             anim.start();
         }
     }
-
 
     //Button Animation
     public void startAnimation()
@@ -660,10 +738,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
                 SpeechRecognizer.RESULTS_RECOGNITION);
         messageTextField.setTextColor(Color.GRAY);
         messageTextField.setText(matches.get(0));
-        for (String s: matches)
-        {
-            Log.d("Partial: ", s);
-        }
     }
 
     @Override
@@ -673,7 +747,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             messageTextField.setHint("Say or write something ... ");
         }
         listening = false;
-        Log.d("end", "end");
     }
 
     @Override
