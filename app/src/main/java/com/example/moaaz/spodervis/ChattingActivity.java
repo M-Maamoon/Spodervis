@@ -71,7 +71,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
     private SpeechRecognizer speech;
     boolean listening = false;
     boolean isRevealed = false;
-    boolean connected = false;
+
     ArrayList<ChattingMessage> chatMessages;
     Hashtable<String, Boolean> state = new Hashtable<String, Boolean>();
     String[][] messages = new String[5][];
@@ -270,16 +270,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         messages[4] = getResources().getStringArray(R.array.noop);
 
     }
-
-    private boolean isNetworkAvailable()
-    {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-
+    
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.action_bar_menu, menu);
