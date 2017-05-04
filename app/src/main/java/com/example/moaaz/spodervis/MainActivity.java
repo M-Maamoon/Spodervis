@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private int currentIndex = -1;
     private static boolean connected = false;
     private boolean isRevealed = false;
+    private String IP = "";
     private String[] textToShow;
 
     private static ArrayList<ChattingMessage> chatMessages;
@@ -327,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
                     Intent intent = new Intent(MainActivity.this, StreamActivity.class);
-                    intent.putExtra(StreamActivity.LOCATION, "http://197.53.26.106:22143");
+                    intent.putExtra(StreamActivity.LOCATION, "http://197.52.11.60:22143");
                     startActivity(intent);
                 }
                 else
