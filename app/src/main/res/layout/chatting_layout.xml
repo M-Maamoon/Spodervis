@@ -169,7 +169,6 @@
 
 
 
-
     </LinearLayout>
     <LinearLayout
         android:id="@+id/shortcutLayout"

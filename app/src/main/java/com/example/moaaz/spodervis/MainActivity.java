@@ -25,6 +25,7 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.Animation;
@@ -33,6 +34,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private int currentIndex = -1;
     private static boolean connected = false;
     private boolean isRevealed = false;
-    private String IP = "";
+    private String IP = "http://197.52.11.60:22143";
     private String[] textToShow;
 
     private static ArrayList<ChattingMessage> chatMessages;
@@ -123,15 +125,7 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onDestroy();
         unregisterReceiver(networkReceiver);
-        for (int i = 0; i < chatMessages.size(); i++)
-        {
-            Log.i("Message " + i, chatMessages.get(i).toString());
-        }
-       // Collections.sort(chatMessages);
-        for (int i = 0; i < chatMessages.size(); i++)
-        {
-            Log.i("Message " + i, chatMessages.get(i).toString());
-        }
+
         writeObjectToFile(this, chatMessages, "ChatMessages");
         writeObjectToFile(this, patternEntries, "PatternEntries");
 
@@ -278,9 +272,12 @@ public class MainActivity extends AppCompatActivity {
     {
         findViewById(R.id.spoder_layout).setOnClickListener(new View.OnClickListener()
         {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v)
             {
+                if (isRevealed)
+                    reveal();
                 if (connected)
                 {
                     findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
@@ -297,23 +294,29 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.child_icon).setOnClickListener(new View.OnClickListener()
         {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public  void onClick(View view)
             {
+                if (isRevealed)
+                    reveal();
                 findViewById(R.id.stream_icon).performClick();
             }
         });
 
         findViewById(R.id.stream_icon).setOnClickListener(new View.OnClickListener()
         {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public  void onClick(View view)
             {
+                if (isRevealed)
+                    reveal();
                 if (connected)
                 {
                     findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
                     Intent intent = new Intent(MainActivity.this, StreamActivity.class);
-                    intent.putExtra(StreamActivity.LOCATION, "http://197.52.11.60:22143");
+                    intent.putExtra(StreamActivity.LOCATION, IP);
                     startActivity(intent);
                 }
                 else
@@ -325,9 +328,12 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.door_icon).setOnClickListener(new View.OnClickListener()
         {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public  void onClick(View view)
             {
+                if (isRevealed)
+                    reveal();
                  findViewById(R.id.stream_icon).performClick();
             }
         });
@@ -362,7 +368,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                reveal();
+                if (isRevealed)
+                    reveal();
                 Intent intent = new Intent(MainActivity.this, AgendaActivity.class);
                 startActivity(intent);
             }
@@ -397,6 +404,9 @@ public class MainActivity extends AppCompatActivity {
                                 });
                     }
                 }, 1000);
+
+                if (isRevealed)
+                    reveal();
             }
         });
 
@@ -412,8 +422,35 @@ public class MainActivity extends AppCompatActivity {
                 patternEntries = new ArrayList<PatternEntry>();
                 writeObjectToFile(MainActivity.this, chatMessages, "ChatMessages");
                 writeObjectToFile(MainActivity.this, patternEntries, "PatternEntries");
+
+                Toast.makeText(MainActivity.this, "Deleted all your history ;)",
+                        Toast.LENGTH_SHORT).show();
+
+                if (isRevealed)
+                    reveal();
             }
+
         });
+
+        final RelativeLayout mainLayout = (RelativeLayout) findViewById(R.id.activity_main);
+        mainLayout.setOnTouchListener(new View.OnTouchListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public boolean onTouch(View v,  MotionEvent event)
+            {
+                if (v.getId() == mainLayout.getId())
+                {
+                    if (isRevealed)
+                        reveal();
+
+                }
+                return false;
+            }
+
+
+        });
+
 
     }
 
@@ -435,8 +472,12 @@ public class MainActivity extends AppCompatActivity {
         txt.setTypeface(font);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void startChatting(View view)
     {
+        if (isRevealed)
+            reveal();
+
         if (connected)
         {
             findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
