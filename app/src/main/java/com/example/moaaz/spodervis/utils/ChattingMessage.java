@@ -38,7 +38,7 @@ public class ChattingMessage implements Comparable<ChattingMessage>, Serializabl
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public int compareTo(ChattingMessage o) {
-        return Long.compare(this.time, o.time);
+        return Long.compare(o.time, this.time);
     }
 
     @Override

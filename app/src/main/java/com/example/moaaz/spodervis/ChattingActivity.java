@@ -249,12 +249,6 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
 
     }
 
-    protected void onDestroy()
-    {
-        super.onDestroy();
-
-    }
-
     public void initState()
     {
         state.put("light", false);

@@ -123,7 +123,15 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onDestroy();
         unregisterReceiver(networkReceiver);
-        Collections.sort(chatMessages);
+        for (int i = 0; i < chatMessages.size(); i++)
+        {
+            Log.i("Message " + i, chatMessages.get(i).toString());
+        }
+       // Collections.sort(chatMessages);
+        for (int i = 0; i < chatMessages.size(); i++)
+        {
+            Log.i("Message " + i, chatMessages.get(i).toString());
+        }
         writeObjectToFile(this, chatMessages, "ChatMessages");
         writeObjectToFile(this, patternEntries, "PatternEntries");
 
@@ -383,6 +391,7 @@ public class MainActivity extends AppCompatActivity {
                                         if (status.isError()) {
                                             Toast.makeText(MainActivity.this, "An error occurred!",
                                                     Toast.LENGTH_SHORT).show();
+                                            Log.i("Status", status.getErrorData().toString());
                                         }
                                     }
                                 });
@@ -405,7 +414,6 @@ public class MainActivity extends AppCompatActivity {
                 writeObjectToFile(MainActivity.this, patternEntries, "PatternEntries");
             }
         });
-
 
     }
 
@@ -443,8 +451,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void displayNotConnected()
     {
-        Log.i("Not", "Connected");
         ImageView connectionIcon = (ImageView) findViewById(R.id.connectionIcon);
+
         connectionIcon.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake));
         final Vibrator v = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
         v.vibrate(50);
@@ -476,6 +484,7 @@ public class MainActivity extends AppCompatActivity {
         TextView noInternetConnectionView = (TextView) findViewById(R.id.noConnectionText);
         noInternetConnectionView.setText(m);
         noInternetConnectionView.setVisibility(View.VISIBLE);
+        findViewById(R.id.connectionIcon).setVisibility(View.VISIBLE);
     }
 
     private void isNetworkAvailable()
