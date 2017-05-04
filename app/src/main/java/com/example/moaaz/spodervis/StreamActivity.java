@@ -162,10 +162,10 @@ public class StreamActivity extends AppCompatActivity implements View.OnClickLis
         releasePlayer();
         try {
             if (media.length() > 0) {
-                Toast toast = Toast.makeText(this, media, Toast.LENGTH_LONG);
-                toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
-                        0);
-                toast.show();
+           //     Toast toast = Toast.makeText(this, media, Toast.LENGTH_LONG);
+             //   toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0,
+               //         0);
+                //toast.show();
             }
 
             // Create a new media player
@@ -187,7 +187,7 @@ public class StreamActivity extends AppCompatActivity implements View.OnClickLis
             libvlc.playIndex(0);
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error creating player!", Toast.LENGTH_LONG).show();
+          //  Toast.makeText(this, "Error creating player!", Toast.LENGTH_LONG).show();
         }
     }
 

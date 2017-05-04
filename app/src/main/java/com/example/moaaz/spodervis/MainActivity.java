@@ -195,10 +195,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
         return object;
     }
-
 
     public void initLayout()
     {
@@ -451,10 +449,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-
     }
-
-
 
     public void setTextFont()
     {
@@ -549,12 +544,6 @@ public class MainActivity extends AppCompatActivity {
             displayNotConnected();
         }
 
-    }
-
-    public int fromDpToPixel(int dpValue)
-    {
-        float d = getResources().getDisplayMetrics().density;
-        return (int)(dpValue * d);
     }
 
     public void configurePubNub()
@@ -681,7 +670,5 @@ public class MainActivity extends AppCompatActivity {
     {
         return connected;
     }
-
-
 
 }
