@@ -270,7 +270,7 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
         messages[4] = getResources().getStringArray(R.array.noop);
 
     }
-    
+
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.action_bar_menu, menu);
@@ -330,6 +330,8 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             reveal();
         }
 
+
+
         final String stringMessage = messageTextField.getText().toString();
         if (!stringMessage.equals(""))
         {
@@ -337,6 +339,12 @@ public class ChattingActivity extends AppCompatActivity implements RecognitionLi
             this.chatMessages.add(messageObject);
 
             appendSentMessage(stringMessage, true);
+
+            if (!MainActivity.isConnected())
+            {
+                appendReplyMessage("No internet connection", true);
+                return;
+            }
 
             Thread thread = new Thread() {
                 @Override

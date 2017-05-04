@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int messageCount;
     private int currentIndex = -1;
-    private boolean connected = false;
+    private static boolean connected = false;
     private boolean isRevealed = false;
     private String[] textToShow;
 
@@ -594,6 +594,11 @@ public class MainActivity extends AppCompatActivity {
     public static ArrayList<PatternEntry> getPatternEntries()
     {
         return patternEntries;
+    }
+
+    public static  boolean isConnected()
+    {
+        return connected;
     }
 
 
