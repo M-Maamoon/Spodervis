@@ -332,9 +332,7 @@ public class AgendaActivity extends AppCompatActivity {
     public void toggleEntry(View view)
     {
         Switch s = (Switch) view;
-        View v = (View) s.getParent();
         int entryId = s.getId();
-
         PatternEntry entry = patternIdsTable.get(entryId);
 
         if (!s.isChecked())

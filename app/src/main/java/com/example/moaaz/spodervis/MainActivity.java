@@ -3,6 +3,7 @@ package com.example.moaaz.spodervis;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,10 +29,13 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.example.moaaz.spodervis.utils.ChattingMessage;
@@ -40,7 +44,9 @@ import com.example.moaaz.spodervis.utils.RoundedImageView;
 import com.example.moaaz.spodervis.utils.pubnubService;
 import com.pubnub.api.PNConfiguration;
 import com.pubnub.api.PubNub;
+import com.pubnub.api.callbacks.PNCallback;
 import com.pubnub.api.callbacks.SubscribeCallback;
+import com.pubnub.api.models.consumer.PNPublishResult;
 import com.pubnub.api.models.consumer.PNStatus;
 import com.pubnub.api.models.consumer.pubsub.PNMessageResult;
 import com.pubnub.api.models.consumer.pubsub.PNPresenceEventResult;
@@ -109,8 +115,6 @@ public class MainActivity extends AppCompatActivity {
             startService(intent);
         }
 
-
-
     }
 
 
@@ -119,18 +123,7 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onDestroy();
         unregisterReceiver(networkReceiver);
-        for (int i = 0; i < chatMessages.size(); i++)
-        {
-            Log.i("Entry " + i, chatMessages.get(i).toString());
-        }
         Collections.sort(chatMessages);
-
-        for (int i = 0; i < chatMessages.size(); i++)
-        {
-            Log.i("Entry " + i, chatMessages.get(i).toString());
-        }
-
-
         writeObjectToFile(this, chatMessages, "ChatMessages");
         writeObjectToFile(this, patternEntries, "PatternEntries");
 
@@ -299,23 +292,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public  void onClick(View view)
             {
-                if (connected)
-                {
-                   /* findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
-                    Intent intent = new Intent(MainActivity.this, BabyActivity.class);
-                    startActivity(intent);*/
-
-                    for (int i = 0; i < chatMessages.size(); i++)
-                    {
-                        ChattingMessage m = chatMessages.get(i);
-                        Log.i("Message: ", m.toString());
-                    }
-
-                }
-                else
-                {
-                    displayNotConnected();
-                }
+                findViewById(R.id.stream_icon).performClick();
             }
         });
 
@@ -343,16 +320,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public  void onClick(View view)
             {
-                if (connected)
-                {
-                    findViewById(R.id.noConnectionText).setVisibility(View.INVISIBLE);
-                    Intent intent = new Intent(MainActivity.this, StreamActivity.class);
-                    startActivity(intent);
-                }
-                else
-                {
-                    displayNotConnected();
-                }
+                 findViewById(R.id.stream_icon).performClick();
             }
         });
 
@@ -379,7 +347,69 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.reminder_layout).setOnClickListener(new View.OnClickListener()
+        {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v)
+            {
+                reveal();
+                Intent intent = new Intent(MainActivity.this, AgendaActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.shutdown).setOnClickListener(new View.OnClickListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v) {
+                final ProgressDialog progress = ProgressDialog.show(MainActivity.this, "Shutting Down",
+                        "Killing services and saving them from the pain of existence.", true);
+                Handler handler = new Handler();
+
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        pubnub.publish()
+                                .message(Arrays.asList("shutdown"))
+                                .channel("commands")
+                                .async(new PNCallback<PNPublishResult>() {
+                                    @Override
+                                    public void onResponse(PNPublishResult result, PNStatus status) {
+
+                                        progress.dismiss();
+                                        if (status.isError()) {
+                                            Toast.makeText(MainActivity.this, "An error occurred!",
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
+                }, 1000);
+            }
+        });
+
+
+        findViewById(R.id.deleteHistory).setOnClickListener(new View.OnClickListener()
+        {
+
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(View v)
+            {
+                chatMessages = new ArrayList<ChattingMessage>();
+                patternEntries = new ArrayList<PatternEntry>();
+                writeObjectToFile(MainActivity.this, chatMessages, "ChatMessages");
+                writeObjectToFile(MainActivity.this, patternEntries, "PatternEntries");
+            }
+        });
+
+
     }
+
+
 
     public void setTextFont()
     {
